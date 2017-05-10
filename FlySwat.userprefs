@@ -1,0 +1,16 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/CameraController.js">
+    <Files>
+      <File FileName="Assets/Scripts/PlayerControl.js" Line="8" Column="1" />
+      <File FileName="Assets/Scripts/CameraController.js" Line="16" Column="1" />
+      <File FileName="Assets/Scripts/Rotator.js" Line="5" Column="42" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Volumes/lazdRAID/Users/lazdHome/FlySwat/Assets/PlayerControl.js" line="4" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
