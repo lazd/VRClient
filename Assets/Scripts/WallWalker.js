@@ -51,7 +51,7 @@ function Update() {
 
 		// Add forward momentum
 		// Bug: Backwards momentum seems to be too much
-		rb.velocity += forwardMotion * transform.forward;
+		rb.velocity += (forwardMotion * (1 - forwardJumpFactor)) * transform.forward;
 	}
 
 	// update surface normal and isGrounded:

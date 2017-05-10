@@ -4,7 +4,6 @@ var rb: Rigidbody;
 var speed : float = 3.0;
 var jumpSpeed : float = 20.0;
 var rotateSpeed : float = 0.7;
-var gravity : float = 10.0;
 
 private var moveDirection : Vector3 = Vector3.zero;
 private var anim: Animator;
@@ -30,9 +29,6 @@ function FixedUpdate () {
 	        moveDirection.y = jumpSpeed;
 	    }
 	}
-
-	// Apply gravity
-	moveDirection.y -= gravity * Time.deltaTime;
 
 	// Move the character
 	controller.Move(moveDirection * Time.deltaTime);
