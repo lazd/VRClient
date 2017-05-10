@@ -1,16 +1,18 @@
-﻿var moveSpeed: float = 6; // move speed
+﻿// Based on http://answers.unity3d.com/questions/155907/basic-movement-walking-on-walls.html
+
+var moveSpeed: float = 6; // move speed
 var turnSpeed: float = 90; // turning speed (degrees/second)
 var lerpSpeed: float = 10; // smoothing speed
-var gravity: float = 10; // gravity acceleration
+var gravity: float = 20; // gravity acceleration
 var isGrounded: boolean;
-var deltaGround: float = 0.2; // character is grounded up to this distance
-var jumpSpeed: float = 10; // vertical jump initial speed
-var forwardJumpFactor: float = 2;
+var deltaGround: float = 0.01; // character is grounded up to this distance
+var jumpSpeed: float = 9; // vertical jump initial speed
+var forwardJumpFactor: float = 0.2;
+var forwardMotion: float = 0;
 
 private var surfaceNormal: Vector3; // current surface normal
 private var myNormal: Vector3; // character normal
 private var distGround: float; // distance from character position to ground
-private var vertSpeed: float = 0; // vertical jump current speed 
 
 private var anim: Animator;
 private var rb: Rigidbody;
@@ -31,7 +33,8 @@ function Start() {
 
 function FixedUpdate() {
 	if (isGrounded) {
-		// apply constant weight force according to character normal:
+		// Apply constant weight force according to character normal:
+		// This keeps the walker stuck to the wall
 		rb.AddForce(-gravity * rb.mass * myNormal);
 	}
 }
@@ -40,7 +43,7 @@ function Update() {
 	var verticalInput = Input.GetAxis('Vertical');
 	var horizontalInput = Input.GetAxis('Horizontal');
 
-	var forwardMotion = verticalInput * moveSpeed;
+	forwardMotion = verticalInput * moveSpeed;
 
 	// jump code - jump to wall or simple jump
 	var ray: Ray;

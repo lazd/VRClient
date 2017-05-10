@@ -48,30 +48,7 @@
   <ItemGroup>
      <Compile Include="Assets\Models\Ants\Scripts\MenuCommands.cs" />
      <Compile Include="Assets\Models\Ants\Scripts\MouseRotate.cs" />
-     <Compile Include="Assets\Pro3DCamera\Resources\Data\DataObjectScripts\CameraData.cs" />
-     <Compile Include="Assets\Pro3DCamera\Resources\Data\DataObjectScripts\CameraDataManager.cs" />
-     <Compile Include="Assets\Pro3DCamera\Resources\Data\DataObjectScripts\CameraShakeData.cs" />
-     <Compile Include="Assets\Pro3DCamera\Resources\Data\DataObjectScripts\ObstructionHandlerData.cs" />
-     <Compile Include="Assets\Pro3DCamera\Resources\Data\DataObjectScripts\PlayerControllerData.cs" />
-     <Compile Include="Assets\Pro3DCamera\Resources\Data\Style\GUISkinData.cs" />
-     <Compile Include="Assets\Pro3DCamera\Scripts\Camera\CameraControl.cs" />
-     <Compile Include="Assets\Pro3DCamera\Scripts\Camera\CollisionHandler.cs" />
-     <Compile Include="Assets\Pro3DCamera\Scripts\Character\CharacterAnimController.cs" />
-     <Compile Include="Assets\Pro3DCamera\Scripts\Character\ObstructionHandler.cs" />
-     <Compile Include="Assets\Pro3DCamera\Scripts\Character\PlayerController.cs" />
-     <Compile Include="Assets\Pro3DCamera\Scripts\ExampleAPI\ButtonEvent.cs" />
-     <Compile Include="Assets\Pro3DCamera\Scripts\ExampleAPI\ShakeCameraButton.cs" />
-     <Compile Include="Assets\Pro3DCamera\Scripts\ExampleAPI\SwitchCameraButton.cs" />
      <Compile Include="Assets\Scripts\AssignSplatMap.cs" />
-     <None Include="Assets\Pro3DCamera\Sprites\Standard Assets\Effects\Projectors\Shaders\ProjectorMultiply.shader" />
-     <None Include="Assets\Pro3DCamera\Sprites\Standard Assets\Effects\Projectors\Shaders\ProjectorLight.shader" />
-     <None Include="Assets\Pro3DCamera\Sprites\Standard Assets\Characters\FirstPersonCharacter\FirstPersonCharacterGuidelines.txt" />
-     <None Include="Assets\Pro3DCamera\Sprites\Standard Assets\Characters\ThirdPersonCharacter\ThirdPersonCharacterGuidelines.txt" />
-     <None Include="Assets\Pro3DCamera\Standard Assets\Effects\Projectors\Shaders\ProjectorLight.shader" />
-     <None Include="Assets\Pro3DCamera\Standard Assets\Effects\Projectors\Shaders\ProjectorMultiply.shader" />
-     <None Include="Assets\Pro3DCamera\Standard Assets\Characters\ThirdPersonCharacter\ThirdPersonCharacterGuidelines.txt" />
-     <None Include="Assets\Pro3DCamera\Standard Assets\Characters\FirstPersonCharacter\FirstPersonCharacterGuidelines.txt" />
-     <None Include="Assets\Pro3DCamera\README\README.txt" />
  <Reference Include="UnityEngine.Analytics">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>
