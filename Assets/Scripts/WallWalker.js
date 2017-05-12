@@ -9,6 +9,7 @@ var deltaGround: float = 0.01; // character is grounded up to this distance
 var jumpSpeed: float = 9; // vertical jump initial speed
 var forwardJumpFactor: float = 0.2;
 var forwardMotion: float = 0;
+var airControlFactor: float = 0.5;
 
 var climbRange: float = 0.5;
 
@@ -49,8 +50,8 @@ function Update() {
 
 	if (isGrounded && Input.GetButtonDown('Jump')) { // jump pressed:
 		// Forward motion takes away from max jump height
-//		rb.velocity += (jumpSpeed - forwardMotion * forwardJumpFactor) * myNormal;
-		rb.velocity += (jumpSpeed) * myNormal;
+		rb.velocity += (jumpSpeed - forwardMotion * forwardJumpFactor) * myNormal;
+//		rb.velocity += (jumpSpeed) * myNormal;
 
 		// Add forward momentum
 		// Bug: Backwards momentum seems to be too much
@@ -92,9 +93,12 @@ function Update() {
 	var targetRot = Quaternion.LookRotation(myForward, myNormal);
 	transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, lerpSpeed * Time.deltaTime);
 
-	// move the character forth/back with Vertical axis:
+	// move the character forward/back with Vertical axis:
 	if (isGrounded) {
 		transform.Translate(0, 0, forwardMotion * Time.deltaTime);
+	}
+	else {
+		transform.Translate(0, 0, forwardMotion * airControlFactor * Time.deltaTime);
 	}
 
 	anim.SetBool('Attack1', Input.GetButtonDown('Fire1'));

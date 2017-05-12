@@ -26,6 +26,13 @@ function LateUpdate() {
 	var rotation: Quaternion = Quaternion.Euler(desiredXAngle, desiredYAngle, 0);
 
 	// Calculate the desired new position
+	if (Vector3.Dot(transform.up, Vector3.down) > 0) {
+		currentOffset.y = offset.y * -1;
+	}
+	else {
+		currentOffset.y = offset.y;
+	}
+
 	var desiredNewPosition = Vector3.SmoothDamp(transform.position, target.transform.position - (rotation * currentOffset), velocity, bumperDampTime);
 
 	// check to see if there is anything behind the target
