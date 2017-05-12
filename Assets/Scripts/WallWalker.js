@@ -10,6 +10,8 @@ var jumpSpeed: float = 9; // vertical jump initial speed
 var forwardJumpFactor: float = 0.2;
 var forwardMotion: float = 0;
 
+var climbRange: float = 0.5;
+
 private var surfaceNormal: Vector3; // current surface normal
 private var myNormal: Vector3; // character normal
 private var distGround: float; // distance from character position to ground
@@ -45,16 +47,24 @@ function Update() {
 
 	forwardMotion = verticalInput * moveSpeed;
 
-	// jump code - jump to wall or simple jump
-	var ray: Ray;
-	var hit: RaycastHit;
 	if (isGrounded && Input.GetButtonDown('Jump')) { // jump pressed:
 		// Forward motion takes away from max jump height
-		rb.velocity += (jumpSpeed - forwardMotion * forwardJumpFactor) * myNormal;
+//		rb.velocity += (jumpSpeed - forwardMotion * forwardJumpFactor) * myNormal;
+		rb.velocity += (jumpSpeed) * myNormal;
 
 		// Add forward momentum
 		// Bug: Backwards momentum seems to be too much
 		rb.velocity += (forwardMotion * (1 - forwardJumpFactor)) * transform.forward;
+	}
+
+
+	var hit: RaycastHit;
+	if (Physics.Raycast(transform.position, transform.forward, hit, climbRange)){ // wall ahead?
+		Debug.Log('Going to hit wall');
+		// Rotate up
+//		transform.rotation.eulerAngles.x -= 4;
+//		transform.position.x += 0.1;
+//		transform.normal = hit.normal;
 	}
 
 	// update surface normal and isGrounded:

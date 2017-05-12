@@ -1,4 +1,6 @@
-﻿public var target: GameObject;
+﻿// Based on http://wiki.unity3d.com/index.php?title=SmoothFollowWithCameraBumper
+
+public var target: GameObject;
 public var damping: float = 1;
 public var anticipateMotion: boolean = true;
 public var rotationDamping: float = 0.75;
@@ -29,22 +31,22 @@ function LateUpdate() {
 	// check to see if there is anything behind the target
 	var hit : RaycastHit;
 
-	// Cast a ray from the player to the new camera position
-	var dir: Vector3 = desiredNewPosition - target.transform.position;
-	if (
-		// Todo: Layermask argument?
-		Physics.Raycast(target.transform.position, dir, hit, bumperDistanceCheck) &&
-		hit.transform != target // ignore ray-casts that hit the user. DR
-    ) {
-    	// Adjust the camera position offset upward and backwards if its colliding
-		currentOffset.y -= bumperCameraHeight;
-		currentOffset.z -= bumperCameraHeight;
-	}
-	else {
-		// Reset the offset if there is no longer a collision
-		// Todo: this causes bounce when the player is static and pointing down a hill
-		currentOffset = Vector3.Lerp(currentOffset, offset, Time.deltaTime * damping);
-	}
+//	// Cast a ray from the player to the new camera position
+//	var dir: Vector3 = desiredNewPosition - target.transform.position;
+//	if (
+//		// Todo: Layermask argument?
+//		Physics.Raycast(target.transform.position, dir, hit, bumperDistanceCheck) &&
+//		hit.transform != target // ignore ray-casts that hit the user. DR
+//    ) {
+//    	// Adjust the camera position offset upward and backwards if its colliding
+//		currentOffset.y -= bumperCameraHeight;
+//		currentOffset.z -= bumperCameraHeight;
+//	}
+//	else {
+//		// Reset the offset if there is no longer a collision
+//		// Todo: this causes bounce when the player is static and pointing down a hill
+//		currentOffset = Vector3.Lerp(currentOffset, offset, Time.deltaTime * damping);
+//	}
 
 	// Calculate the actual new position
 	var newPosition = Vector3.SmoothDamp(transform.position, target.transform.position - (rotation * currentOffset), velocity, bumperDampTime);
@@ -60,6 +62,7 @@ function LateUpdate() {
 		// If the player is moving, look slightly ahead of them
 		var forwardMotion = target.forwardMotion;
 		if (forwardMotion != 0 && target.isGrounded) {
+			// Math based on http://answers.unity3d.com/questions/772331/spawn-object-in-front-of-player-and-the-way-he-is.html
 			var playerPos: Vector3 = target.transform.position;
 			var playerDirection: Vector3 = target.transform.forward;
 			var playerRotation: Quaternion = target.transform.rotation;
