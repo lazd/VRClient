@@ -1,6 +1,6 @@
 ﻿// Based on http://answers.unity3d.com/questions/155907/basic-movement-walking-on-walls.html
 
-var moveSpeed: float = 6; // move speed
+var moveSpeed: float = 8; // move speed
 var turnSpeed: float = 90; // turning speed (degrees/second)
 var lerpSpeed: float = 10; // smoothing speed
 var gravity: float = 20; // gravity acceleration
@@ -42,11 +42,30 @@ function FixedUpdate() {
 	}
 }
 
+
+var accelTime: float = 1;
+private var currentSpeed: float = 0;
+private var yVelocity: float = 0.0;
+private var startSpeed: float = moveSpeed / 2;
+
 function Update() {
 	var verticalInput = Input.GetAxis('Vertical');
 	var horizontalInput = Input.GetAxis('Horizontal');
 
-	forwardMotion = verticalInput * moveSpeed;
+	// Add accelation component
+	if (!verticalInput) {
+		// Reset speed if we stop moving
+		currentSpeed = startSpeed;
+	}
+	else {
+		// Slowly increase speed
+		currentSpeed = Mathf.SmoothDamp(currentSpeed, moveSpeed, yVelocity, accelTime);
+	}
+
+	Debug.Log(currentSpeed);
+
+	// Calculate forward motion based on stick input
+	forwardMotion = verticalInput * currentSpeed;
 
 	if (isGrounded && Input.GetButtonDown('Jump')) { // jump pressed:
 		// Forward motion takes away from max jump height
