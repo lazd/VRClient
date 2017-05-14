@@ -1,24 +1,47 @@
 ﻿// Based on http://wiki.unity3d.com/index.php?title=SmoothFollowWithCameraBumper
 
+// The game object to follow
 public var target: GameObject;
-public var damping: float = 1;
+
+// Damping for position changes
+public var positionDamping: float = 0.3;
+
+// Damping for rotation changes
+public var rotationDamping: float = 0.6;
+
+// Damping for position changes that result from a collision
+public var collisionDamping : float = 0.5;
+
+// If true, the camera will point slightly in front of the character
 public var anticipateMotion: boolean = true;
-public var rotationDamping: float = 0.75;
-public var bumperDampTime : float = 0.5;
-public var bumperCameraDistance : float = 4; 	// adjust camera height while bumping
 
-public var hitDetection: boolean = false;
+// If true, the camera will avoid clipping other objects
+public var collisionDetection: boolean = false;
 
-private var bumperRayOffset : Vector3; 			// allows offset of the bumper ray from target origin
-private var offset: Vector3;
+// Distance to move away from collision.
+// Increasing this makes the camera get closer to the subject when a collision happens
+public var collisionOffset : float = 4;
+
+// The offset from the character
+public var offset: Vector3;
+
+// Current camera rotation
 private var currentRotation: Vector3;
-private var velocity: Vector3 = Vector3.zero;
 
+// The distance at which collisions should be deteched
 private var cameraRayDistance: float;
+
+// Velocity vector for damping
+private var dampVelocity: Vector3 = Vector3.zero;
+
 function Start() {
-	offset = target.transform.position - transform.position;
-	currentRotation = target.transform.up;
+	// Set initial position based on offset
+	transform.position = target.transform.position - offset;
+
+	// Detect collisions at most the starting camera position away
 	cameraRayDistance = Vector3.Distance(transform.position, target.transform.position);
+
+	currentRotation = target.transform.up;
 }
 
 // Pay attention to camera jitter
@@ -30,9 +53,9 @@ function FixedUpdate() {
 	var rotation: Quaternion = Quaternion.Euler(desiredXAngle, desiredYAngle, 0);
 
 	// Calculate the desired new position	
-	var desiredNewPosition = Vector3.SmoothDamp(transform.position, target.transform.position - (target.transform.rotation * offset), velocity, bumperDampTime);
+	var desiredNewPosition = Vector3.SmoothDamp(transform.position, target.transform.position - (target.transform.rotation * offset), dampVelocity, positionDamping);
 
-	if (hitDetection) {
+	if (collisionDetection) {
 		//	 Cast a ray from the player to the new camera position
 		var hit : RaycastHit;
 		var dir: Vector3 = desiredNewPosition - target.transform.position;
@@ -43,13 +66,13 @@ function FixedUpdate() {
 	    ) {
 	    	// Approach 1: Move up just a little bit
 	    	// Bug: bounces
-			// var newPosition: Vector3 = hit.point + hit.normal * bumperCameraDistance;
+			// var newPosition: Vector3 = hit.point + hit.normal * collisionOffset;
 
 			// Approach 2: Position exactly at hit point
 			// Bug: swoops too fast around corners without having character in view
 			var newPosition: Vector3 = hit.point;
 
-			transform.position = Vector3.SmoothDamp(transform.position, newPosition, velocity, bumperDampTime);
+			transform.position = Vector3.SmoothDamp(transform.position, newPosition, dampVelocity, collisionDamping);
 		}
 		else {
 			transform.position = desiredNewPosition;
