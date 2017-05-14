@@ -2,7 +2,6 @@
 
 var moveSpeed: float = 8; // move speed
 var turnSpeed: float = 90; // turning speed (degrees/second)
-var lerpSpeed: float = 10; // smoothing speed
 var gravity: float = 20; // gravity acceleration
 var isGrounded: boolean;
 var deltaGround: float = 0.01; // character is grounded up to this distance
@@ -11,10 +10,7 @@ var forwardJumpFactor: float = 0.2;
 var forwardMotion: float = 0;
 var airControlFactor: float = 0.5;
 
-var climbRange: float = 0.5;
-
 private var surfaceNormal: Vector3; // current surface normal
-private var myNormal: Vector3; // character normal
 private var distGround: float; // distance from character position to ground
 
 private var anim: Animator;
@@ -24,10 +20,7 @@ function Start() {
 	anim = GetComponent.<Animator>();
 	rb = GetComponent.<Rigidbody>();
 
-	// normal starts as character up direction 
-	myNormal = transform.up;
-
-	// disable physics rotation
+	// Disable physics rotation
 	rb.freezeRotation = true;
 
 	// distance from transform.position to ground
@@ -45,13 +38,14 @@ private var hit: RaycastHit;
 
 private var jumping: boolean = false;
 
-function FixedUpdate() {
-	if (isGrounded) {
-		// Apply constant weight force according to character normal:
-		// This keeps the walker stuck to the wall
-		rb.AddForce(-gravity * rb.mass * myNormal);
-	}
+private var curNormal: Vector3  = Vector3.zero;
+private var usedNormal: Vector3  = Vector3.zero;
+private var tiltToNormal: Quaternion;
 
+public var attractionDistance: float = 2;
+public var stickyRotationLerpFactor: float = 6;
+
+function FixedUpdate() {
 	var verticalInput = Input.GetAxis('Vertical');
 	var horizontalInput = Input.GetAxis('Horizontal');
 
@@ -68,62 +62,80 @@ function FixedUpdate() {
 	// Calculate forward motion based on stick input
 	forwardMotion = verticalInput * currentSpeed;
 
-	if (isGrounded && Input.GetButtonDown('Jump') && !jumping) { // jump pressed:
-		// Forward motion takes away from max jump height
-		rb.velocity += (jumpSpeed - forwardMotion * forwardJumpFactor) * myNormal;
-//		rb.velocity += (jumpSpeed) * myNormal;
-
-		// Add forward momentum
-		// Bug: Backwards momentum seems to be too much
-		rb.velocity += (forwardMotion * (1 - forwardJumpFactor)) * transform.forward;
-
-		jumping = true;
+	var outhit: RaycastHit;
+	if (Physics.Raycast (transform.position, transform.forward, outhit, attractionDistance)) {
+		Debug.DrawRay (transform.position, transform.forward, Color.blue, attractionDistance);
+		
+		usedNormal = outhit.normal;
+		curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
+		tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
+		transform.rotation = tiltToNormal;
 	}
-	else {
-		jumping = false;
+	else { 
+		if (Physics.Raycast (transform.position, -transform.up, outhit, attractionDistance)) {
+ 			Debug.DrawRay (transform.position, -transform.up, Color.green, attractionDistance);
+ 			usedNormal = outhit.normal;
+ 			curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
+ 			tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
+ 			transform.rotation = tiltToNormal;
+		}
+		else {
+         	// Todo: why 0.3?
+			if (Physics.Raycast (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3, 0), outhit, attractionDistance)) {
+				Debug.DrawRay (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3, 0), Color.green, attractionDistance);
+				usedNormal = outhit.normal;
+				curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
+				tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
+				transform.rotation = tiltToNormal;
+			}
+			else {
+				curNormal = Vector3.Lerp (curNormal, Vector3.up, stickyRotationLerpFactor * Time.deltaTime);
+				tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
+				transform.rotation = tiltToNormal;
+			}
+		}
 	}
 
-//	if (Physics.Raycast(transform.position, transform.forward, hit, climbRange)){ // wall ahead?
-//		Debug.Log('Going to hit wall');
-//		// Rotate up
-////		transform.rotation.eulerAngles.x -= 4;
-////		transform.position.x += 0.1;
-////		transform.normal = hit.normal;
-//	}
-
-	// update surface normal and isGrounded:
-	ray = Ray(transform.position, -myNormal); // cast ray downwards
-	if (Physics.Raycast(ray, hit)) { // use it to update myNormal and isGrounded
+	// Cast ray downwards to detect if we're on the ground
+	ray = Ray(transform.position, -transform.up); 
+	if (Physics.Raycast(ray, hit)) {
 		isGrounded = hit.distance <= distGround + deltaGround;
-		surfaceNormal = hit.normal;
 	}
 	else {
 		isGrounded = false;
-
-		// assume usual ground normal to avoid 'falling forever'
-		surfaceNormal = Vector3.up;
 	}
 
-	myNormal = Vector3.Lerp(myNormal, surfaceNormal, lerpSpeed * Time.deltaTime);
-
-	// movement code - turn left/right with Horizontal axis:
+	// Turn left/right with horizontal axis:
 	transform.Rotate(0, horizontalInput * turnSpeed * Time.deltaTime, 0);
 
-	// find forward direction with new myNormal:
-	var myForward = Vector3.Cross(transform.right, myNormal);
-
-	// align character to the new myNormal while keeping the forward direction:
-	var targetRot = Quaternion.LookRotation(myForward, myNormal);
-	transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, lerpSpeed * Time.deltaTime);
-
-	// move the character forward/back with Vertical axis:
+	// Move forward/back with vertical axis
 	if (isGrounded) {
 		transform.Translate(0, 0, forwardMotion * Time.deltaTime);
 	}
 	else {
+		// Move slower in the air
 		transform.Translate(0, 0, forwardMotion * airControlFactor * Time.deltaTime);
 	}
 
+	// Perform jump
+	if (Input.GetButtonDown('Jump')) {
+		if (isGrounded) {
+			// Forward motion takes away from max jump height
+			rb.velocity += (jumpSpeed) * transform.up;
+
+			// Add forward momentum
+			// Bug: Backwards momentum seems to be too much
+			// Bug: Slingshots off of hills
+		 	 rb.velocity += forwardMotion * forwardJumpFactor * transform.forward;
+		}
+	}
+
+	// Apply constant weight force according to character normal:
+	// This keeps the walker stuck to the wall
+	// If this is applied unconditionally, gravity must be off on the RigidBody
+	rb.AddForce(-gravity * rb.mass * transform.up);
+
+	// Set animation parameters
 	anim.SetBool('Attack1', Input.GetButtonDown('Fire1'));
 	anim.SetBool('Attack2', Input.GetButtonDown('Fire2'));
 	anim.SetBool('Attack3', Input.GetButtonDown('Fire3'));

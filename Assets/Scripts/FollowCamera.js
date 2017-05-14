@@ -7,19 +7,21 @@ public var rotationDamping: float = 0.75;
 public var bumperDampTime : float = 0.5;
 public var bumperCameraHeight : float = 0.3; 	// adjust camera height while bumping
 
+public var hitDetection: boolean = false;
+
 private var bumperRayOffset : Vector3; 			// allows offset of the bumper ray from target origin
 private var offset: Vector3;
-private var currentOffset: Vector3;
 private var currentRotation: Vector3;
 private var velocity: Vector3 = Vector3.zero;
 
+private var cameraRayDistance: float;
 function Start() {
 	offset = target.transform.position - transform.position;
-	currentOffset = target.transform.position - transform.position;
 	currentRotation = target.transform.up;
+	cameraRayDistance = Vector3.Distance(transform.position, target.transform.position);
 }
 
-// Todo: fix camera jitteR:
+// Pay attention to camera jitter
 // https://forum.unity3d.com/threads/camera-jitter-problem.115224/#post-1854046
 
 function FixedUpdate() {
@@ -27,43 +29,33 @@ function FixedUpdate() {
 	var desiredXAngle: float = target.transform.eulerAngles.x;
 	var rotation: Quaternion = Quaternion.Euler(desiredXAngle, desiredYAngle, 0);
 
-	// Invert the offset if we go upside down
-	var isUpsideDown: boolean = Vector3.Dot(transform.up, Vector3.down) > 0;
-	if (isUpsideDown) {
-		currentOffset.y = offset.y * -1;
-	}
-	else {
-		currentOffset.y = offset.y;
-	}
-
 	// Calculate the desired new position	
-	var desiredNewPosition = Vector3.SmoothDamp(transform.position, target.transform.position - (rotation * currentOffset), velocity, bumperDampTime);
+	var desiredNewPosition = Vector3.SmoothDamp(transform.position, target.transform.position - (target.transform.rotation * offset), velocity, bumperDampTime);
 
-	var newPosition: Vector3;
+	if (hitDetection) {
+		//	 Cast a ray from the player to the new camera position
+		var hit : RaycastHit;
+		var dir: Vector3 = desiredNewPosition - target.transform.position;
+		if (
+			// Todo: Layermask argument?
+			Physics.Raycast(target.transform.position, dir, hit, cameraRayDistance) &&
+			hit.transform != target // ignore ray-casts that hit the user. DR
+	    ) {
+	    	// Move up just a little bit
+			// var newPosition: Vector3 = hit.point + hit.normal * bumperCameraHeight;
 
-	// Cast a ray from the player to the new camera position
-	var hit : RaycastHit;
-	var dir: Vector3 = desiredNewPosition - target.transform.position;
-	var rayDistance: float = Vector3.Distance(desiredNewPosition, target.transform.position);
-	if (
-		// Todo: Layermask argument?
-		Physics.Raycast(target.transform.position, dir, hit, rayDistance) &&
-		hit.transform != target // ignore ray-casts that hit the user. DR
-    ) {
-    	// Move up just a little bit
-//		newPosition = hit.point + hit.normal * bumperCameraHeight;
+			// Position exactly at hit point
+			var newPosition: Vector3 = hit.point;
 
-		newPosition = hit.point;
-
-    	// Calculate position based on collision
-    	newPosition = Vector3.SmoothDamp(transform.position, newPosition, velocity, bumperDampTime);
+			transform.position = Vector3.SmoothDamp(transform.position, newPosition, velocity, bumperDampTime);
+		}
+		else {
+			transform.position = desiredNewPosition;
+		}
 	}
 	else {
-		newPosition = desiredNewPosition;
+		transform.position = desiredNewPosition;
 	}
-
-	// Apply the new position
-	transform.position = newPosition;
 
 	// Lerp rotation
 	currentRotation = Vector3.Lerp(currentRotation, target.transform.up, Time.deltaTime * rotationDamping);
