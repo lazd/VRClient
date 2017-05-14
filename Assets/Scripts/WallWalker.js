@@ -126,12 +126,13 @@ function FixedUpdate() {
 			// Add forward momentum
 			// Bug: Backwards momentum seems to be too much
 			// Bug: Slingshots off of hills
-		 	 rb.velocity += forwardMotion * forwardJumpFactor * transform.forward;
+			// Bug: Jumps too high randomly
+			rb.velocity += forwardMotion * forwardJumpFactor * transform.forward;
 		}
 	}
 
-	// Apply constant weight force according to character normal:
-	// This keeps the walker stuck to the wall
+	// Apply constant force according to character normal
+	// This keeps the walker stuck to the wall and acts as gravity
 	// If this is applied unconditionally, gravity must be off on the RigidBody
 	rb.AddForce(-gravity * rb.mass * transform.up);
 
