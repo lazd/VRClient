@@ -5,7 +5,7 @@ public var damping: float = 1;
 public var anticipateMotion: boolean = true;
 public var rotationDamping: float = 0.75;
 public var bumperDampTime : float = 0.5;
-public var bumperCameraHeight : float = 0.3; 	// adjust camera height while bumping
+public var bumperCameraDistance : float = 4; 	// adjust camera height while bumping
 
 public var hitDetection: boolean = false;
 
@@ -41,10 +41,12 @@ function FixedUpdate() {
 			Physics.Raycast(target.transform.position, dir, hit, cameraRayDistance) &&
 			hit.transform != target // ignore ray-casts that hit the user. DR
 	    ) {
-	    	// Move up just a little bit
-			// var newPosition: Vector3 = hit.point + hit.normal * bumperCameraHeight;
+	    	// Approach 1: Move up just a little bit
+	    	// Bug: bounces
+			// var newPosition: Vector3 = hit.point + hit.normal * bumperCameraDistance;
 
-			// Position exactly at hit point
+			// Approach 2: Position exactly at hit point
+			// Bug: swoops too fast around corners without having character in view
 			var newPosition: Vector3 = hit.point;
 
 			transform.position = Vector3.SmoothDamp(transform.position, newPosition, velocity, bumperDampTime);
