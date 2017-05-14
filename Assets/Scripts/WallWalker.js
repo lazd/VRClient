@@ -34,21 +34,24 @@ function Start() {
 	distGround = GetComponent.<Collider>().bounds.extents.y - GetComponent.<Collider>().center.y;
 }
 
+// Draw a line from in front of the ant, facing the ant, and downward at a 45°
+// Add and attractive force to the point of intersection
+
+var accelTime: float = 1;
+private var currentSpeed: float = 0;
+private var yVelocity: float = 0.0;
+private var startSpeed: float = moveSpeed / 2;
+private var hit: RaycastHit;
+
+private var jumping: boolean = false;
+
 function FixedUpdate() {
 	if (isGrounded) {
 		// Apply constant weight force according to character normal:
 		// This keeps the walker stuck to the wall
 		rb.AddForce(-gravity * rb.mass * myNormal);
 	}
-}
 
-
-var accelTime: float = 1;
-private var currentSpeed: float = 0;
-private var yVelocity: float = 0.0;
-private var startSpeed: float = moveSpeed / 2;
-
-function Update() {
 	var verticalInput = Input.GetAxis('Vertical');
 	var horizontalInput = Input.GetAxis('Horizontal');
 
@@ -62,12 +65,10 @@ function Update() {
 		currentSpeed = Mathf.SmoothDamp(currentSpeed, moveSpeed, yVelocity, accelTime);
 	}
 
-	Debug.Log(currentSpeed);
-
 	// Calculate forward motion based on stick input
 	forwardMotion = verticalInput * currentSpeed;
 
-	if (isGrounded && Input.GetButtonDown('Jump')) { // jump pressed:
+	if (isGrounded && Input.GetButtonDown('Jump') && !jumping) { // jump pressed:
 		// Forward motion takes away from max jump height
 		rb.velocity += (jumpSpeed - forwardMotion * forwardJumpFactor) * myNormal;
 //		rb.velocity += (jumpSpeed) * myNormal;
@@ -75,17 +76,20 @@ function Update() {
 		// Add forward momentum
 		// Bug: Backwards momentum seems to be too much
 		rb.velocity += (forwardMotion * (1 - forwardJumpFactor)) * transform.forward;
+
+		jumping = true;
+	}
+	else {
+		jumping = false;
 	}
 
-
-	var hit: RaycastHit;
-	if (Physics.Raycast(transform.position, transform.forward, hit, climbRange)){ // wall ahead?
-		Debug.Log('Going to hit wall');
-		// Rotate up
-//		transform.rotation.eulerAngles.x -= 4;
-//		transform.position.x += 0.1;
-//		transform.normal = hit.normal;
-	}
+//	if (Physics.Raycast(transform.position, transform.forward, hit, climbRange)){ // wall ahead?
+//		Debug.Log('Going to hit wall');
+//		// Rotate up
+////		transform.rotation.eulerAngles.x -= 4;
+////		transform.position.x += 0.1;
+////		transform.normal = hit.normal;
+//	}
 
 	// update surface normal and isGrounded:
 	ray = Ray(transform.position, -myNormal); // cast ray downwards
@@ -124,7 +128,7 @@ function Update() {
 	anim.SetBool('Attack2', Input.GetButtonDown('Fire2'));
 	anim.SetBool('Attack3', Input.GetButtonDown('Fire3'));
 
-	// Set the character speed as a number, 0-1
+	// Set the character speed as a number, -1 to 1
 	anim.SetFloat('Speed', forwardMotion/8);
 }
 
