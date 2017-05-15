@@ -1,9 +1,10 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/FollowCamera.js">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/WallWalker.js">
     <Files>
-      <File FileName="Assets/Scripts/WallWalker.js" Line="46" Column="57" />
-      <File FileName="Assets/Scripts/FollowCamera.js" Line="68" Column="25" />
+      <File FileName="Assets/Scripts/WallWalker.js" Line="130" Column="4" />
+      <File FileName="Assets/Scripts/FollowCamera.js" Line="35" Column="37" />
+      <File FileName="Assets/Scripts/WallWalker2.js" Line="28" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
