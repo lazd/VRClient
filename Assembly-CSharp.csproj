@@ -6,7 +6,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{B7A084A9-AA39-CC91-7D00-96D4CECFE26E}</ProjectGuid>
+    <ProjectGuid>{9860A0E4-7F6A-DB2F-22E8-020AB97165B4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -49,6 +49,7 @@
      <Compile Include="Assets\Models\Ants\Scripts\MenuCommands.cs" />
      <Compile Include="Assets\Models\Ants\Scripts\MouseRotate.cs" />
      <Compile Include="Assets\Scripts\AssignSplatMap.cs" />
+     <None Include="Assets\Models\Wasp\Wasp_readme.txt" />
  <Reference Include="UnityEngine.Analytics">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>
