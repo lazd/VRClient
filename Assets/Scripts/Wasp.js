@@ -1,63 +1,140 @@
-﻿#pragma strict
+#pragma strict
 
-var anim: Animator;
+var ascendSpeed: float = 5;
+var descendSpeed: float = 2;
+var groundMoveSpeed: float = 5;
+var airMoveSpeed: float = 20;
+var liftAccelTime: float = 1;
+
+private var anim: Animator;
+
+private var idle: boolean = true;
+private var walk: boolean = false;
+private var takeoff: boolean = false;
+private var fly: boolean = false;
+private var land: boolean = false;
+private var attack: boolean = false;
+private var die: boolean = false;
+
+private var wallWalker: WallWalker;
+private var rb: Rigidbody;
+private var initialGravity: float;
+
+private var currentVerticalLift: float;
+private var startVerticalLift: float = ascendSpeed/5;
+
+private var yVelocity: float = 0.0;
 
 function Start() {
+	rb = GetComponent.<Rigidbody>();
 	anim = GetComponent.<Animator>();
+	wallWalker = GetComponent('WallWalker');
+
+	// Store intial gravity so we can shut it off
+	initialGravity = wallWalker.gravity;
 }
 
 function FixedUpdate() {
-	if(Input.GetKey(KeyCode.Alpha1)){
-		anim.SetBool("walk",true);
-		anim.SetBool("takeoff",false);
-		anim.SetBool("landing",false);
-		anim.SetBool("idle",false);
+	var jumpInput: float = Input.GetAxis('Jump');
+
+	// Add accelation component
+	if (!jumpInput && currentVerticalLift != startVerticalLift) {
+		// Reset lift speed if we stop moving
+		currentVerticalLift = Mathf.SmoothDamp(currentVerticalLift, startVerticalLift, yVelocity, liftAccelTime);
 	}
-	if(Input.GetKey(KeyCode.Alpha2)){
-		anim.SetBool("takeoff",true);
-		anim.SetBool("walk",false);
-		fly();
+	else {
+		// Slowly increase lift speed
+		currentVerticalLift = Mathf.SmoothDamp(currentVerticalLift, ascendSpeed, yVelocity, liftAccelTime);
 	}
-	if(Input.GetKey(KeyCode.Alpha3)){
-		anim.SetBool("attack",true);
-		anim.SetBool("fly",false);
-		fly2();
+
+
+	if (wallWalker.isGrounded) {
+		wallWalker.moveSpeed = groundMoveSpeed;
+		
+		if (fly) {
+			doLand();
+		}
+
+		if (Mathf.Abs(wallWalker.speed) > 0) {
+			// If we're on the ground and moving, walk
+			idle = false;
+			walk = true;
+		}
+		else {
+			idle = true;
+			walk = false;
+		}
+
+		if (jumpInput) {
+			if (!takeoff) {
+				doTakeoff();
+			}
+
+			// Go up a bit
+			transform.Translate(0, currentVerticalLift * Time.deltaTime, 0);
+		}
 	}
-	if(Input.GetKey(KeyCode.Alpha4)){
-		anim.SetBool("landing",true);
-		anim.SetBool("fly",false);
-		idle();
+	else {
+		wallWalker.moveSpeed = airMoveSpeed;
+
+		// If we're in the air, flap wings
+		idle = false;
+		fly = true;
+		walk = false;
+
+		if (jumpInput) {
+			// Go up a bit
+			transform.Translate(0, currentVerticalLift * Time.deltaTime, 0);
+		}
+		else {
+			// Go down a bit
+			transform.Translate(0, -descendSpeed * Time.deltaTime, 0);
+		}
 	}
-	if(Input.GetKey(KeyCode.Alpha5)){
-		anim.SetBool("hit",true);
-		anim.SetBool("fly",false);
-		fly2();
+	
+	// Attack while flying, walking, or idle
+	if ((fly || walk || idle) && Input.GetButtonDown('Fire1')) {
+		attack = true;
 	}
-	if(Input.GetKey(KeyCode.Alpha6)){
-		anim.SetBool("die",true);
-		anim.SetBool("fly",false);
+	else {
+		attack = false;
 	}
+
+	if (fly) {
+		// Counteract gravity when we're in the air
+		// rb.AddForce(wallWalker.gravity * rb.mass * transform.up);
+	}
+
+	// Todo: if grounded and jump pressed, takeoff
+	// Todo: if flying and then grounded, landing
+	// Todo: hit
+	// Todo: die
+
+	// Set animation parameters
+	anim.SetBool('idle', idle);
+	anim.SetBool('walk', walk);
+	anim.SetBool('takeoff', takeoff);
+	anim.SetBool('fly', fly);
+	anim.SetBool('land', land);
+	anim.SetBool('attack', attack);
+	anim.SetBool('die', die);
+}
+
+function doTakeoff() {
+	idle = false;
+	takeoff = true;
+	wallWalker.gravity = 0;
+	yield WaitForSeconds(0.5);
+	takeoff = false;
+	fly = true;
 }
 
 
-function fly(){
-	yield WaitForSeconds(1.1);
-	anim.SetBool("takeoff",false);
-	anim.SetBool("attack",false);
-	anim.SetBool("fly",true);
+function doLand(){
+	idle = false;
+	fly = false;
+	land = true;
+	wallWalker.gravity = initialGravity;
+	yield WaitForSeconds(0.5);
+	land = false;
 }
-
-function fly2(){
-	yield WaitForSeconds(0.3);
-	anim.SetBool("attack",false);
-	anim.SetBool("hit",false);
-	anim.SetBool("fly",true);
-}
-
-
-function idle(){
-	yield WaitForSeconds(1);
-	anim.SetBool("landing",false);
-	anim.SetBool("idle",true);
-}
-

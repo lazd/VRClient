@@ -1,14 +1,16 @@
 ﻿// Based on http://answers.unity3d.com/questions/155907/basic-movement-walking-on-walls.html
 
+// Configuration
 var moveSpeed: float = 8; // move speed
 var turnSpeed: float = 90; // turning speed (degrees/second)
 var gravity: float = 20; // gravity acceleration
-var isGrounded: boolean;
 var deltaGround: float = 0.01; // character is grounded up to this distance
-var jumpSpeed: float = 9; // vertical jump initial speed
-var forwardJumpFactor: float = 0.2;
 var forwardMotion: float = 0;
 var airControlFactor: float = 0.5;
+
+// API
+var speed: float = 0; // The speed of the character
+var isGrounded: boolean;
 
 private var surfaceNormal: Vector3; // current surface normal
 private var distGround: float; // distance from character position to ground
@@ -35,8 +37,6 @@ private var currentSpeed: float = 0;
 private var yVelocity: float = 0.0;
 private var startSpeed: float = moveSpeed / 2;
 private var hit: RaycastHit;
-
-private var jumping: boolean = false;
 
 private var curNormal: Vector3  = Vector3.zero;
 private var usedNormal: Vector3  = Vector3.zero;
@@ -117,32 +117,14 @@ function FixedUpdate() {
 		transform.Translate(0, 0, forwardMotion * airControlFactor * Time.deltaTime);
 	}
 
-	// Perform jump
-	if (Input.GetButtonDown('Jump')) {
-		if (isGrounded) {
-			// Forward motion takes away from max jump height
-			rb.velocity += (jumpSpeed) * transform.up;
-
-			// Add forward momentum
-			// Bug: Backwards momentum seems to be too much
-			// Bug: Slingshots off of hills
-			// Bug: Jumps too high randomly
-			rb.velocity += forwardMotion * forwardJumpFactor * transform.forward;
-		}
-	}
-
 	// Apply constant force according to character normal
 	// This keeps the walker stuck to the wall and acts as gravity
 	// If this is applied unconditionally, gravity must be off on the RigidBody
 	rb.AddForce(-gravity * rb.mass * transform.up);
 
-	// Set animation parameters
-	anim.SetBool('Attack1', Input.GetButtonDown('Fire1'));
-	anim.SetBool('Attack2', Input.GetButtonDown('Fire2'));
-	anim.SetBool('Attack3', Input.GetButtonDown('Fire3'));
-
 	// Set the character speed as a number, -1 to 1
-	anim.SetFloat('Speed', forwardMotion/8);
+	speed = forwardMotion/8;
+	anim.SetFloat('speed', speed);
 }
 
 // Pick up items
