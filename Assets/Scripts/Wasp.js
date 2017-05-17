@@ -50,7 +50,7 @@ function FixedUpdate() {
 	}
 
 	// Center the collider based on the capsulePosition animation parameter set in curves
-	// col.center.y = anim.GetFloat('capsulePosition') * 0.017 + 0.005;
+	col.center.y = anim.GetFloat('capsulePosition') * 0.017 + 0.005;
 
 	if (wallWalker.isGrounded) {
 		wallWalker.moveSpeed = groundMoveSpeed;

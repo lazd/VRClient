@@ -447,7 +447,7 @@ ModelImporter:
             outSlope: 0
             tangentMode: 0
           - serializedVersion: 2
-            time: 0.17169374
+            time: 0.39675173
             value: 0
             inSlope: 0
             outSlope: 0
@@ -541,7 +541,26 @@ ModelImporter:
       heightFromFeet: 0
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
+      curves:
+      - name: capsulePosition
+        curve:
+          serializedVersion: 2
+          curve:
+          - serializedVersion: 2
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+          - serializedVersion: 2
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+          preInfinity: 3
+          postInfinity: 3
+          rotationOrder: 0
       events: []
       transformMask: []
       maskType: 0
@@ -609,7 +628,7 @@ ModelImporter:
             outSlope: 0
             tangentMode: 0
           - serializedVersion: 2
-            time: 1
+            time: 0.61484915
             value: 0
             inSlope: 0
             outSlope: 0

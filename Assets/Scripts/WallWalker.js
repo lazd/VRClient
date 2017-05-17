@@ -56,11 +56,13 @@ function FixedUpdate() {
 		currentSpeed = Mathf.SmoothDamp(currentSpeed, moveSpeed, yVelocity, accelTime);
 	}
 
+	var actualPosition = transform.position + GetComponent.<Collider>().center;
+
 	// Calculate forward motion based on stick input
 	forwardMotion = verticalInput * currentSpeed;
 
-	if (Physics.Raycast (transform.position, transform.forward, hit, attractionDistance)) {
-		Debug.DrawRay (transform.position, transform.forward, Color.blue, attractionDistance);
+	if (Physics.Raycast (actualPosition, transform.forward, hit, attractionDistance)) {
+		Debug.DrawRay (actualPosition, transform.forward, Color.blue, attractionDistance);
 		
 		usedNormal = hit.normal;
 		curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
@@ -68,8 +70,8 @@ function FixedUpdate() {
 		transform.rotation = tiltToNormal;
 	}
 	else { 
-		if (Physics.Raycast (transform.position, -transform.up, hit, attractionDistance)) {
- 			Debug.DrawRay (transform.position, -transform.up, Color.green, attractionDistance);
+		if (Physics.Raycast (actualPosition, -transform.up, hit, attractionDistance)) {
+ 			Debug.DrawRay (actualPosition, -transform.up, Color.green, attractionDistance);
  			usedNormal = hit.normal;
  			curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
  			tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
@@ -77,8 +79,8 @@ function FixedUpdate() {
 		}
 		else {
       // Todo: why 0.3?
-			if (Physics.Raycast (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3, 0), hit, attractionDistance)) {
-				Debug.DrawRay (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3, 0), Color.green, attractionDistance);
+			if (Physics.Raycast (actualPosition + (-transform.up), -transform.forward + new Vector3 (0, .3, 0), hit, attractionDistance)) {
+				Debug.DrawRay (actualPosition + (-transform.up), -transform.forward + new Vector3 (0, .3, 0), Color.green, attractionDistance);
 				usedNormal = hit.normal;
 				curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
 				tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
@@ -93,7 +95,8 @@ function FixedUpdate() {
 	}
 
 	// Cast ray downwards to detect if we're on the ground
-	isGrounded = Physics.Raycast(transform.position, -transform.up, distGround + 0.05);
+	var rayPosition = actualPosition + new Vector3(0, 0.75, 0);
+	isGrounded = Physics.Raycast(rayPosition, -transform.up, distGround + 0.75);
 
 	// Turn left/right with horizontal axis:
 	transform.Rotate(0, horizontalInput * turnSpeed * Time.deltaTime, 0);
