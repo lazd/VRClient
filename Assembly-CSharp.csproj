@@ -49,6 +49,8 @@
      <Compile Include="Assets\Models\Ants\Scripts\MenuCommands.cs" />
      <Compile Include="Assets\Models\Ants\Scripts\MouseRotate.cs" />
      <Compile Include="Assets\Scripts\AssignSplatMap.cs" />
+     <Compile Include="Assets\Scripts\BasicWaspDrone.cs" />
+     <Compile Include="Assets\Scripts\WaspDrone.cs" />
      <None Include="Assets\Models\Wasp\Wasp_readme.txt" />
  <Reference Include="UnityEngine.Analytics">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
