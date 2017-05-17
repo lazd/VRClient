@@ -18,8 +18,9 @@ private var die: boolean = false;
 
 private var wallWalker: WallWalker;
 private var rb: Rigidbody;
-private var initialGravity: float;
+private var col: CapsuleCollider;
 
+private var initialGravity: float;
 private var currentVerticalLift: float;
 private var startVerticalLift: float = ascendSpeed/5;
 
@@ -28,6 +29,7 @@ private var yVelocity: float = 0.0;
 function Start() {
 	rb = GetComponent.<Rigidbody>();
 	anim = GetComponent.<Animator>();
+	col = GetComponent.<CapsuleCollider>();
 	wallWalker = GetComponent('WallWalker');
 
 	// Store intial gravity so we can shut it off
@@ -47,6 +49,8 @@ function FixedUpdate() {
 		currentVerticalLift = Mathf.SmoothDamp(currentVerticalLift, ascendSpeed, yVelocity, liftAccelTime);
 	}
 
+	// Center the collider based on the capsulePosition animation parameter set in curves
+	// col.center.y = anim.GetFloat('capsulePosition') * 0.017 + 0.005;
 
 	if (wallWalker.isGrounded) {
 		wallWalker.moveSpeed = groundMoveSpeed;
