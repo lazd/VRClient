@@ -4,13 +4,26 @@
 var moveSpeed: float = 8; // move speed
 var turnSpeed: float = 90; // turning speed (degrees/second)
 var gravity: float = 20; // gravity acceleration
-var deltaGround: float = 0.01; // character is grounded up to this distance
 var forwardMotion: float = 0;
 var airControlFactor: float = 0.5;
+var accelTime: float = 1;
 
 // API
 var speed: float = 0; // The speed of the character
 var isGrounded: boolean;
+
+private var currentSpeed: float = 0;
+private var yVelocity: float = 0.0;
+private var startSpeed: float = moveSpeed / 2;
+
+private var hit: RaycastHit;
+
+private var curNormal: Vector3  = Vector3.zero;
+private var usedNormal: Vector3  = Vector3.zero;
+private var tiltToNormal: Quaternion;
+
+public var attractionDistance: float = 2;
+public var stickyRotationLerpFactor: float = 6;
 
 private var surfaceNormal: Vector3; // current surface normal
 private var distGround: float; // distance from character position to ground
@@ -29,25 +42,9 @@ function Start() {
 	distGround = GetComponent.<Collider>().bounds.extents.y - GetComponent.<Collider>().center.y;
 }
 
-// Draw a line from in front of the ant, facing the ant, and downward at a 45°
-// Add and attractive force to the point of intersection
-
-var accelTime: float = 1;
-private var currentSpeed: float = 0;
-private var yVelocity: float = 0.0;
-private var startSpeed: float = moveSpeed / 2;
-private var hit: RaycastHit;
-
-private var curNormal: Vector3  = Vector3.zero;
-private var usedNormal: Vector3  = Vector3.zero;
-private var tiltToNormal: Quaternion;
-
-public var attractionDistance: float = 2;
-public var stickyRotationLerpFactor: float = 6;
-
 function FixedUpdate() {
-	var verticalInput = Input.GetAxis('Vertical');
-	var horizontalInput = Input.GetAxis('Horizontal');
+	var verticalInput = Input.GetAxis('Throttle');
+	var horizontalInput = Input.GetAxis('Yaw');
 
 	// Add accelation component
 	if (!verticalInput) {
@@ -62,28 +59,27 @@ function FixedUpdate() {
 	// Calculate forward motion based on stick input
 	forwardMotion = verticalInput * currentSpeed;
 
-	var outhit: RaycastHit;
-	if (Physics.Raycast (transform.position, transform.forward, outhit, attractionDistance)) {
+	if (Physics.Raycast (transform.position, transform.forward, hit, attractionDistance)) {
 		Debug.DrawRay (transform.position, transform.forward, Color.blue, attractionDistance);
 		
-		usedNormal = outhit.normal;
+		usedNormal = hit.normal;
 		curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
 		tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
 		transform.rotation = tiltToNormal;
 	}
 	else { 
-		if (Physics.Raycast (transform.position, -transform.up, outhit, attractionDistance)) {
+		if (Physics.Raycast (transform.position, -transform.up, hit, attractionDistance)) {
  			Debug.DrawRay (transform.position, -transform.up, Color.green, attractionDistance);
- 			usedNormal = outhit.normal;
+ 			usedNormal = hit.normal;
  			curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
  			tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
  			transform.rotation = tiltToNormal;
 		}
 		else {
-         	// Todo: why 0.3?
-			if (Physics.Raycast (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3, 0), outhit, attractionDistance)) {
+      // Todo: why 0.3?
+			if (Physics.Raycast (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3, 0), hit, attractionDistance)) {
 				Debug.DrawRay (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3, 0), Color.green, attractionDistance);
-				usedNormal = outhit.normal;
+				usedNormal = hit.normal;
 				curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
 				tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
 				transform.rotation = tiltToNormal;
@@ -97,13 +93,7 @@ function FixedUpdate() {
 	}
 
 	// Cast ray downwards to detect if we're on the ground
-	ray = Ray(transform.position, -transform.up); 
-	if (Physics.Raycast(ray, hit)) {
-		isGrounded = hit.distance <= distGround + deltaGround;
-	}
-	else {
-		isGrounded = false;
-	}
+	isGrounded = Physics.Raycast(transform.position, -transform.up, distGround + 0.05);
 
 	// Turn left/right with horizontal axis:
 	transform.Rotate(0, horizontalInput * turnSpeed * Time.deltaTime, 0);
