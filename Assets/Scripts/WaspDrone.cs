@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using System.Collections;
 
@@ -14,7 +14,8 @@ public class WaspDrone : MonoBehaviour {
     protected Vector3 targetVelocity;               //user input determines how fast user wants ship to rotate
     protected Vector3 curVelocity;                  //holds the rb.angularVelocity converted from world space to local
 
-    public Vector3 maxV = new Vector3(4,4,4);       //max desired rate of change
+    public Vector3 maxV = new Vector3(8,8,8);       //max desired rate of change
+    public Vector3 expo = new Vector3(1.8f, 1.8f, 1.8f);
 
     public Vector3 Kp = new Vector3(4, 4, 4);
     public Vector3 Ki = new Vector3(.007f,.007f,.007f);
@@ -57,6 +58,14 @@ public class WaspDrone : MonoBehaviour {
     protected virtual void SetVelocities(){
         // collect inputs
         var inputs = new Vector3(-getI("Pitch"),getI("Yaw"),-getI("Roll"));
+
+        // Apply expo
+        inputs = new Vector3(
+            Mathf.Sign(inputs.x) * Mathf.Pow(Mathf.Abs(inputs.x), expo.x),
+            Mathf.Sign(inputs.y) * Mathf.Pow(Mathf.Abs(inputs.y), expo.y),
+            Mathf.Sign(inputs.z) * Mathf.Pow(Mathf.Abs(inputs.z), expo.z)
+        );
+
         targetVelocity = Vector3.Scale (inputs, maxV);
 
         //take the rb.angularVelocity and convert it to local space; we need this for comparison to target rotation velocities

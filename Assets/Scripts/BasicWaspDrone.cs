@@ -15,7 +15,6 @@ public class BasicWaspDrone : MonoBehaviour {
     anim = GetComponent<Animator>();
     rb = GetComponent<Rigidbody>();
     anim.SetBool("fly", true);
-    anim.SetBool("fly", true);
   }
   
   void FixedUpdate () {
