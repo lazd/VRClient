@@ -5,7 +5,7 @@ using System.Collections;
 
 public class FollowCamera : MonoBehaviour {
   // The game object to follow
-  public WallWalker target;
+  public GameObject target;
 
   // Damping for position changes
   public float positionDamping = 0.3f;
@@ -15,9 +15,6 @@ public class FollowCamera : MonoBehaviour {
 
   // Damping for position changes that result from a collision
   public float collisionDamping = 0.5f;
-
-  // If true, the camera will point slightly in front of the character
-  public bool anticipateMotion = true;
 
   // If true, the camera will avoid clipping other objects
   public bool collisionDetection = false;
@@ -88,17 +85,6 @@ public class FollowCamera : MonoBehaviour {
 
     // By default, look at the taraget
     var lookAtATarget = target.transform.position;
-
-    if (anticipateMotion) {
-      // Bug: Broke in C#
-      // If the player is moving, look slightly ahead of them
-      if (target.speed != 0 && target.isGrounded) {
-        // Math based on http://answers.unity3d.com/questions/772331/spawn-object-in-front-of-player-and-the-way-he-is.html
-        var playerDirection = target.transform.forward;
-        var playerRotation = target.transform.rotation;
-        lookAtATarget = lookAtATarget + playerDirection * target.speed;
-      }
-    }
 
     transform.LookAt(lookAtATarget, currentRotation);
   }

@@ -19,5 +19,5 @@ function OnTriggerEnter (other: Collider) {
 		else {
 			Debug.Log('Would have hit item '+other.gameObject.name);
 		}
-    }
+  }
 }
