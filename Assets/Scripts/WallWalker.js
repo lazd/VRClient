@@ -105,13 +105,13 @@ function FixedUpdate() {
 	} 
 
 	// Add accelation component
-	if (!forwardInput) {
-		// Reset speed if we stop moving
-		currentSpeed = startSpeed;
-	}
-	else {
+	if (forwardInput || strafeInput) {
 		// Slowly increase speed
 		currentSpeed = Mathf.SmoothDamp(currentSpeed, moveSpeed, yVelocity, accelTime);
+	}
+	else {
+		// Reset speed if we stop moving
+		currentSpeed = startSpeed;
 	}
 
 	var actualPosition = transform.position + GetComponent.<Collider>().center;
@@ -174,8 +174,8 @@ function FixedUpdate() {
 
 	if (strafeStick != "" && strafeSpeed != 0) {
 		if (isGrounded) {
-			// Move at moveSpeed on the ground
-			transform.Translate(moveSpeed * strafeInput * Time.deltaTime, 0, 0);
+			// Move at currentSpeed on the ground
+			transform.Translate(currentSpeed * strafeInput * Time.deltaTime, 0, 0);
 		}
 		else {
 			// Move at strafeSpeed in the air
