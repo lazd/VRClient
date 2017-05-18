@@ -49,7 +49,9 @@
      <Compile Include="Assets\Models\Ants\Scripts\MenuCommands.cs" />
      <Compile Include="Assets\Models\Ants\Scripts\MouseRotate.cs" />
      <Compile Include="Assets\Scripts\Ant.cs" />
+     <Compile Include="Assets\Scripts\Droid.cs" />
      <Compile Include="Assets\Scripts\FollowCamera.cs" />
+     <Compile Include="Assets\Scripts\MeleeWeapon.cs" />
      <Compile Include="Assets\Scripts\WallWalker.cs" />
      <Compile Include="Assets\Scripts\Wasp.cs" />
      <Compile Include="Assets\Scripts\WaspDrone.cs" />
