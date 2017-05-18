@@ -21,7 +21,6 @@ private var dying: boolean = false;
 
 private var wallWalker: WallWalker;
 private var rb: Rigidbody;
-private var col: CapsuleCollider;
 
 private var initialGravity: float;
 private var currentVerticalLift: float;
@@ -32,28 +31,17 @@ private var yVelocity: float = 0.0;
 function Start() {
 	rb = GetComponent.<Rigidbody>();
 	anim = GetComponent.<Animator>();
-	col = GetComponent.<CapsuleCollider>();
 	wallWalker = GetComponent('WallWalker');
 
 	initialGravity = wallWalker.gravity;
 }
 
-function FixedUpdate() {
-	var jumpInput: float = Input.GetAxis("Jump");
-	var throttleInput: float = wallWalker.throttleStick ? Input.GetAxis(wallWalker.throttleStick) : 0;
+private var jumpInput: float;
+private var throttleInput: float;
 
-	// Add accelation component
-	if (jumpInput > 0) {
-		// Slowly increase lift speed
-		currentVerticalLift = Mathf.SmoothDamp(currentVerticalLift, ascendSpeed, yVelocity, liftAccelTime);
-	}
-	else {
-		// Reset lift speed if we stop moving
-		currentVerticalLift = Mathf.SmoothDamp(currentVerticalLift, startVerticalLift, yVelocity, liftAccelTime);
-	}
-
-	// Center the collider based on the capsulePosition animation parameter set in curves
-	col.center.y = anim.GetFloat('capsulePosition') * 0.017 + 0.005;
+function Update() {
+	jumpInput = Input.GetAxis("Jump");
+	throttleInput = wallWalker.throttleStick ? Input.GetAxis(wallWalker.throttleStick) : 0;
 
 	if (wallWalker.isGrounded) {
 		wallWalker.gravity = initialGravity;
@@ -82,7 +70,19 @@ function FixedUpdate() {
 		wallWalker.gravity = 0;
 		fly();
 	}
-	
+}
+
+function FixedUpdate() {
+	// Add accelation component
+	if (jumpInput > 0) {
+		// Slowly increase lift speed
+		currentVerticalLift = Mathf.SmoothDamp(currentVerticalLift, ascendSpeed, yVelocity, liftAccelTime);
+	}
+	else {
+		// Reset lift speed if we stop moving
+		currentVerticalLift = Mathf.SmoothDamp(currentVerticalLift, startVerticalLift, yVelocity, liftAccelTime);
+	}
+
 	if (wallWalker.controlStyle == 'Simple') {
 		if (jumpInput) {
 			// Go up a bit
@@ -94,6 +94,7 @@ function FixedUpdate() {
 		}
 	}
 	else {
+		// Bug: Need to clamp force somehow, can go so fast it flies through things
     rb.AddForce(transform.up * throttleInput * throttleThrust, ForceMode.Impulse);
 	}
 
