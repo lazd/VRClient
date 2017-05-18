@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using System.Collections;
 
-public class Ant : MonoBehaviour {
+public class Ant : WallWalker {
   /** Configuration */
   public float jumpSpeed = 9f; // vertical jump initial speed
   public float forwardJumpFactor = 0.2f;
@@ -10,20 +10,12 @@ public class Ant : MonoBehaviour {
   /** API */
   public bool isJumping = false;
 
-  private Animator anim;
-  private Rigidbody rb;
-  private WallWalker wallWalker;
+  protected override void FixedUpdate() {
+    base.wallWalk();
 
-  void Start() {
-  	rb = GetComponent<Rigidbody>();
-    anim = GetComponent<Animator>();
-    wallWalker = GetComponent<WallWalker>();
-  }
-
-  void FixedUpdate() {
     // Perform jump
-    if (wallWalker.isGrounded) {
-      if (!isJumping && ((wallWalker.throttleStick != "" && Input.GetAxis(wallWalker.throttleStick) > 0) || Input.GetButton("Jump"))) {
+    if (isGrounded) {
+      if (!isJumping && ((throttleStick != "" && Input.GetAxis(throttleStick) > 0) || Input.GetButton("Jump"))) {
         isJumping = true;
         StartCoroutine(jump());
       }
@@ -35,12 +27,12 @@ public class Ant : MonoBehaviour {
   	anim.SetBool("attack3", Input.GetButtonDown("Fire3"));
   }
 
-  IEnumerator jump() {
+  protected IEnumerator jump() {
     // Forward motion takes away from max jump height
     rb.velocity += (jumpSpeed) * transform.up;
 
     // Add forward momentum
-    rb.velocity += wallWalker.forwardMotion * forwardJumpFactor * transform.forward;
+    rb.velocity += forwardMotion * forwardJumpFactor * transform.forward;
 
     // Don't allow jumping for a bit
     yield return new WaitForSeconds(0.5f);

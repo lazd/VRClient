@@ -3,8 +3,7 @@ using System;
 using UnityEngine;
 using System.Collections;
 
-public class Wasp : MonoBehaviour {
-
+public class Wasp : WallWalker {
   public float ascendSpeed = 5f;
   public float descendSpeed = 2f;
   public float groundMoveSpeed = 5f;
@@ -13,57 +12,54 @@ public class Wasp : MonoBehaviour {
 
   public float throttleThrust = 2f;
 
-  private Animator anim;
-
-  private WallWalker wallWalker;
-  private Rigidbody rb;
-
   private float initialGravity;
   private float currentVerticalLift;
   private float startVerticalLift;
 
-  private float yVelocity = 0.0f;
-
   private float jumpInput;
   private float throttleInput;
 
-  void Start() {
-    rb = GetComponent<Rigidbody>();
-    anim = GetComponent<Animator>();
-    wallWalker = GetComponent<WallWalker>();
+  protected override void Start() {
+    base.Start();
 
     startVerticalLift = ascendSpeed/2;
 
-    initialGravity = wallWalker.gravity;
+    initialGravity = gravity;
+
+    Debug.Log(throttleStick);
   }
 
-  void FixedUpdate() {
-    jumpInput = Input.GetAxis("Jump");
-    throttleInput = wallWalker.throttleStick != "" ? Input.GetAxis(wallWalker.throttleStick) : 0;
+  protected override void FixedUpdate() {
+    base.FixedUpdate();
 
-    if (wallWalker.isGrounded) {
-      wallWalker.gravity = initialGravity;
-      wallWalker.moveSpeed = groundMoveSpeed;
+    wallWalk();
+
+    jumpInput = Input.GetAxis("Jump");
+    throttleInput = throttleStick != "" ? Input.GetAxis(throttleStick) : 0;
+
+    if (isGrounded) {
+      gravity = initialGravity;
+      moveSpeed = groundMoveSpeed;
 
       if (anim.GetCurrentAnimatorStateInfo(0).IsName("fly")) {
         land();
       }
       else {
-        if (wallWalker.speed != 0) {
+        if (speed != 0) {
           walk();
         }
         else {
           idle();
         }
 
-        if (jumpInput != 0 || (throttleInput > 0 && wallWalker.controlStyle != "Simple")) {
+        if (jumpInput != 0 || (throttleInput > 0 && controlStyle != "Simple")) {
           takeOff();
         }
       }
     }
     else {
-      wallWalker.gravity = 0;
-      wallWalker.moveSpeed = airMoveSpeed;
+      gravity = 0;
+      moveSpeed = airMoveSpeed;
 
       if (anim.GetCurrentAnimatorStateInfo(0).IsName("idle") || anim.GetCurrentAnimatorStateInfo(0).IsName("walk")) {
         takeOff();
@@ -83,12 +79,12 @@ public class Wasp : MonoBehaviour {
       currentVerticalLift = Mathf.SmoothDamp(currentVerticalLift, startVerticalLift, ref yVelocity, liftAccelTime);
     }
 
-    if (wallWalker.controlStyle == "Simple") {
+    if (controlStyle == "Simple") {
       if (jumpInput != 0) {
         // Go up a bit
         transform.Translate(0, currentVerticalLift * Time.deltaTime, 0);
       }
-      else if (!wallWalker.isGrounded) {
+      else if (!isGrounded) {
         // Go down a bit
         transform.Translate(0, -descendSpeed * Time.deltaTime, 0);
       }

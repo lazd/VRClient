@@ -28,9 +28,9 @@ public class WallWalker : MonoBehaviour {
 	public float stickyRotationLerpFactor = 6f;
 
 	/** API */
-	public float speed = 0; // The speed of the character
-	public bool isGrounded;
-	public float forwardMotion = 0; // The current forward motion of the character
+	protected float speed = 0; // The speed of the character
+	protected bool isGrounded;
+	protected float forwardMotion = 0; // The current forward motion of the character
 
 	// Sticks to use for each action
 	public String forwardStick;
@@ -38,29 +38,28 @@ public class WallWalker : MonoBehaviour {
 	public String yawStick;
 	public String throttleStick;
 
+	protected float distGround; // distance from character position to ground
 
-	private Vector3 surfaceNormal; // current surface normal
-	private float distGround; // distance from character position to ground
+	protected Animator anim;
+	protected Rigidbody rb;
 
-	private Animator anim;
-	private Rigidbody rb;
+	protected float currentSpeed = 0;
+	protected float yVelocity = 0.0f;
+	protected float startSpeed;
 
+	/** Internal */
 	private float forwardInput;
 	private float yawInput;
 	private float strafeInput;
 
-	private float currentSpeed = 0;
-	private float yVelocity = 0.0f;
-	private float startSpeed;
-
+	private Vector3 surfaceNormal; // current surface normal
 	private RaycastHit hit;
 
 	private Vector3 curNormal = Vector3.zero;
 	private Vector3 usedNormal = Vector3.zero;
 	private Quaternion tiltToNormal;
 
-
-	void Start() {
+	protected virtual void Start() {
 		anim = GetComponent<Animator>();
 		rb = GetComponent<Rigidbody>();
 	
@@ -76,7 +75,7 @@ public class WallWalker : MonoBehaviour {
 		ApplyControlStyle();
 	}
 
-	void ApplyControlStyle() {
+	public void ApplyControlStyle() {
 		if (controlStyle == "Simple") {
 			forwardStick = "Throttle";
 			strafeStick = "";
@@ -109,10 +108,12 @@ public class WallWalker : MonoBehaviour {
 		}
 	}
 
-	void FixedUpdate() {
-		// Uncomment to catch inspector changes
-		ApplyControlStyle();
+	protected virtual void FixedUpdate() {
+		// Uncomment to catch inspector changes to controlStyle
+		// ApplyControlStyle();
+	}
 
+	protected virtual void wallWalk() {
 		if (forwardStick != "") {
 			forwardInput = Mathf.Sign(Input.GetAxis(forwardStick)) * Mathf.Pow(Mathf.Abs(Input.GetAxis(forwardStick)), moveExpo);
 		}
@@ -219,7 +220,7 @@ public class WallWalker : MonoBehaviour {
 	}
 
 	// Pick up items
-	void OnTriggerEnter (Collider other) {
+	protected void OnTriggerEnter (Collider other) {
 		if (other.gameObject.CompareTag("Pickup")) {
 			other.gameObject.SetActive(false);
 	  }
