@@ -2,17 +2,9 @@
 using UnityEngine;
 using System.Collections;
 
-public class WaspDrone : WallWalker {
-
-    public GUIText ScreenReadout;
-
-    public float throttleThrust = 2f;
-
+public class WaspDrone : Wasp {
     public Vector3 thrust = new Vector3(1,1,1);     //Total thrust per axis
     public Vector3 maxForces;                       //the amount of torque available for each axis, based on thrust
-
-    protected Vector3 targetVelocity;               //user input determines how fast user wants ship to rotate
-    protected Vector3 curVelocity;                  //holds the rb.angularVelocity converted from world space to local
 
     public Vector3 maxV = new Vector3(8,8,8);       //max desired rate of change
     public Vector3 expo = new Vector3(1.8f, 1.8f, 1.8f);
@@ -21,9 +13,14 @@ public class WaspDrone : WallWalker {
     public Vector3 Ki = new Vector3(.007f,.007f,.007f);
     public Vector3 Kd = new Vector3(0,0,0); 
 
+    protected Vector3 targetVelocity;               //user input determines how fast user wants ship to rotate
+    protected Vector3 curVelocity;                  //holds the rb.angularVelocity converted from world space to local
+
     protected PidController3Axis pControl = new PidController3Axis();
 
     protected Vector3 inputs;
+
+    public FollowCamera followCamera;
 
     protected override void Start() {
         base.Start();
@@ -56,7 +53,7 @@ public class WaspDrone : WallWalker {
 
     protected virtual void SetVelocities(){
         // collect inputs
-        var inputs = new Vector3(getI("Pitch"),getI("Yaw"),getI("Roll"));
+        var inputs = new Vector3(getI("Pitch"),getI("Yaw"),-getI("Roll"));
 
         // Apply expo
         inputs = new Vector3(
@@ -89,24 +86,44 @@ public class WaspDrone : WallWalker {
     }
 
     protected override void FixedUpdate() {
-        base.FixedUpdate();
+        // Run WallWalker calculations so we get isGroudned and inputs
+        calculate();
 
-        // Enable flight control system if we"re in the air
-        if (!isGrounded) {
-            // Enable physics rotation
-            rb.freezeRotation = false;
+        // Be sticky no matter what
+        beSticky();
 
-            // Throttle
-            rb.AddForce(transform.up * Input.GetAxis("Throttle") * throttleThrust, ForceMode.Impulse);
+        if (isGrounded) {
+            followCamera.cameraAngle = 0;
+            followCamera.offset = new Vector3(0, -1.5f, 4f);
 
-            RCS();            
-        }
-        else {
             // Otherwise, be a wallwalker
 
             // Disable physics rotation
             rb.freezeRotation = true;
-            // WallWalk();
+            rb.useGravity = false;
+
+            wallWalk();
+        }
+        else {
+            // Follow from underneath
+            followCamera.cameraAngle = 20f;
+            followCamera.offset = new Vector3(0, 1.5f, 5f);
+
+            // Enable physics rotation
+            rb.freezeRotation = false;
+            rb.useGravity = true;
+
+            // Throttle
+            rb.AddForce(transform.up * throttleInput * throttleThrust, ForceMode.Impulse);
+
+            // Run the PID flight controller
+            RCS();
+
+            // Tell the animation we're flying
+            anim.SetTrigger("flying");
+
+            // Set animation speed based on throttle
+            anim.SetFloat("speed", throttleInput);
         }
     }
 }

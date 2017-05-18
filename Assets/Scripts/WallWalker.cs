@@ -27,9 +27,13 @@ public class WallWalker : MonoBehaviour {
 	// The lerp factor for rotations when sticking to walls
 	public float stickyRotationLerpFactor = 6f;
 
+	public bool isGrounded;
+
+	// Perform auto leveling against the up normal
+	public bool autoLevel = true;
+
 	/** API */
 	protected float speed = 0; // The speed of the character
-	protected bool isGrounded;
 	protected float forwardMotion = 0; // The current forward motion of the character
 
 	// Sticks to use for each action
@@ -47,11 +51,12 @@ public class WallWalker : MonoBehaviour {
 	protected float yVelocity = 0.0f;
 	protected float startSpeed;
 
-	/** Internal */
-	private float forwardInput;
-	private float yawInput;
-	private float strafeInput;
+	protected float throttleInput;
+	protected float forwardInput;
+	protected float yawInput;
+	protected float strafeInput;
 
+	/** Internal */
 	private Vector3 surfaceNormal; // current surface normal
 	private RaycastHit hit;
 
@@ -113,7 +118,10 @@ public class WallWalker : MonoBehaviour {
 		// ApplyControlStyle();
 	}
 
-	protected virtual void wallWalk() {
+	protected virtual void calculate() {
+		if (throttleStick != "") {
+			throttleInput = Mathf.Sign(Input.GetAxis(throttleStick)) * Mathf.Pow(Mathf.Abs(Input.GetAxis(throttleStick)), moveExpo);
+		}
 		if (forwardStick != "") {
 			forwardInput = Mathf.Sign(Input.GetAxis(forwardStick)) * Mathf.Pow(Mathf.Abs(Input.GetAxis(forwardStick)), moveExpo);
 		}
@@ -123,6 +131,55 @@ public class WallWalker : MonoBehaviour {
 		if (strafeStick != "") {
 			strafeInput = Mathf.Sign(Input.GetAxis(strafeStick)) * Mathf.Pow(Mathf.Abs(Input.GetAxis(strafeStick)), moveExpo);
 		} 
+
+		// Cast ray downwards to detect if we"re on the ground
+		// var groundedRayFudgeFactor = GetComponent<Collider>().bounds.extents.y/2;
+		// var rayPosition = transform.position + new Vector3(0, groundedRayFudgeFactor, 0);
+		// isGrounded = Physics.Raycast(rayPosition, -transform.up, distGround + groundedRayFudgeFactor + 0.05f);
+
+		isGrounded = Physics.Raycast(transform.position, -transform.up, distGround + 0.05f);
+	}
+
+	protected virtual void beSticky() {
+		// From previous attempt to be more true to the capsule
+		// var transform.position = transform.position + GetComponent<CapsuleCollider>().center;
+
+		if (Physics.Raycast (transform.position, transform.forward, out hit, attractionDistance)) {
+			Debug.DrawRay (transform.position, transform.forward, Color.blue, attractionDistance);
+			
+			usedNormal = hit.normal;
+			curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
+			tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
+			transform.rotation = tiltToNormal;
+		}
+		else { 
+			if (Physics.Raycast (transform.position, -transform.up, out hit, attractionDistance)) {
+	 			Debug.DrawRay (transform.position, -transform.up, Color.green, attractionDistance);
+	 			usedNormal = hit.normal;
+	 			curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
+	 			tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
+	 			transform.rotation = tiltToNormal;
+			}
+			else {
+	      // Todo: why 0.3?
+				if (Physics.Raycast (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3f, 0), out hit, attractionDistance)) {
+					Debug.DrawRay (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3f, 0), Color.green, attractionDistance);
+					usedNormal = hit.normal;
+					curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
+					tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
+					transform.rotation = tiltToNormal;
+				}
+				else if (autoLevel) {
+					curNormal = Vector3.Lerp (curNormal, Vector3.up, stickyRotationLerpFactor * Time.deltaTime);
+					tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
+					transform.rotation = tiltToNormal;
+				}
+			}
+		}
+	}
+
+	protected virtual void wallWalk() {
+		calculate();
 
 		// Add accelation component
 		if (forwardInput != 0 || strafeInput != 0) {
@@ -134,52 +191,8 @@ public class WallWalker : MonoBehaviour {
 			currentSpeed = startSpeed;
 		}
 
-		// var actualPosition = transform.position + GetComponent<CapsuleCollider>().center;
-		var actualPosition = transform.position;
-
 		// Calculate forward motion based on stick input
 		forwardMotion = forwardInput * currentSpeed;
-
-		if (Physics.Raycast (actualPosition, transform.forward, out hit, attractionDistance)) {
-			Debug.DrawRay (actualPosition, transform.forward, Color.blue, attractionDistance);
-			
-			usedNormal = hit.normal;
-			curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
-			tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
-			transform.rotation = tiltToNormal;
-		}
-		else { 
-			if (Physics.Raycast (actualPosition, -transform.up, out hit, attractionDistance)) {
-	 			Debug.DrawRay (actualPosition, -transform.up, Color.green, attractionDistance);
-	 			usedNormal = hit.normal;
-	 			curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
-	 			tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
-	 			transform.rotation = tiltToNormal;
-			}
-			else {
-	      // Todo: why 0.3?
-				if (Physics.Raycast (actualPosition + (-transform.up), -transform.forward + new Vector3 (0, .3f, 0), out hit, attractionDistance)) {
-					Debug.DrawRay (actualPosition + (-transform.up), -transform.forward + new Vector3 (0, .3f, 0), Color.green, attractionDistance);
-					usedNormal = hit.normal;
-					curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
-					tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
-					transform.rotation = tiltToNormal;
-				}
-				else {
-					curNormal = Vector3.Lerp (curNormal, Vector3.up, stickyRotationLerpFactor * Time.deltaTime);
-					tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
-					transform.rotation = tiltToNormal;
-				}
-			}
-		}
-
-		// Cast ray downwards to detect if we"re on the ground
-		// var groundedRayFudgeFactor = GetComponent<Collider>().bounds.extents.y/2;
-		// var rayPosition = actualPosition + new Vector3(0, groundedRayFudgeFactor, 0);
-		// isGrounded = Physics.Raycast(rayPosition, -transform.up, distGround + groundedRayFudgeFactor + 0.05f);
-
-		isGrounded = Physics.Raycast(actualPosition, -transform.up, distGround + 0.05f);
-
 
 		// Turn left/right with horizontal axis:
 		transform.Rotate(0, yawInput * turnSpeed * Time.deltaTime, 0);

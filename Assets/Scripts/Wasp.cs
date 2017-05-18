@@ -16,8 +16,7 @@ public class Wasp : WallWalker {
   private float currentVerticalLift;
   private float startVerticalLift;
 
-  private float jumpInput;
-  private float throttleInput;
+  protected float jumpInput;
 
   protected override void Start() {
     base.Start();
@@ -25,17 +24,16 @@ public class Wasp : WallWalker {
     startVerticalLift = ascendSpeed/2;
 
     initialGravity = gravity;
-
-    Debug.Log(throttleStick);
+  }
+  
+  protected override void FixedUpdate() {
+    wallWalk();
   }
 
-  protected override void FixedUpdate() {
-    base.FixedUpdate();
-
-    wallWalk();
+  protected override void wallWalk() {
+    base.wallWalk();
 
     jumpInput = Input.GetAxis("Jump");
-    throttleInput = throttleStick != "" ? Input.GetAxis(throttleStick) : 0;
 
     if (isGrounded) {
       gravity = initialGravity;

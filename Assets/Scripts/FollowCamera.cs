@@ -7,6 +7,9 @@ public class FollowCamera : MonoBehaviour {
   // The game object to follow
   public GameObject target;
 
+  // How much to angle the camera up from the position of looking at the target
+  public float cameraAngle = 0f;
+
   // Damping for position changes
   public float positionDamping = 0.3f;
 
@@ -87,5 +90,10 @@ public class FollowCamera : MonoBehaviour {
     var lookAtATarget = target.transform.position;
 
     transform.LookAt(lookAtATarget, currentRotation);
+
+    if (cameraAngle != 0) {
+      // Tilt the camera up
+      transform.rotation = transform.rotation * Quaternion.Euler(-cameraAngle, 0, 0);
+    }
   }
 }
