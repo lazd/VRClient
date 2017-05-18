@@ -1,11 +1,12 @@
-private var anim: Animator;
-private var rb: Rigidbody;
-private var wallWalker: WallWalker;
 var jumpSpeed: float = 9; // vertical jump initial speed
 var forwardJumpFactor: float = 0.2;
 
+private var anim: Animator;
+private var rb: Rigidbody;
+private var wallWalker: WallWalker;
+
 function Start() {
-	anim = GetComponent.<Animator>();
+	rb = GetComponent.<Rigidbody>();
   anim = GetComponent.<Animator>();
   wallWalker = GetComponent('WallWalker');
 }

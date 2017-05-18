@@ -65,7 +65,7 @@ public class WaspDrone : MonoBehaviour {
 
     protected virtual void SetVelocities(){
         // collect inputs
-        var inputs = new Vector3(-getI("Pitch"),getI("Yaw"),-getI("Roll"));
+        var inputs = new Vector3(getI("Pitch"),getI("Yaw"),getI("Roll"));
 
         // Apply expo
         inputs = new Vector3(

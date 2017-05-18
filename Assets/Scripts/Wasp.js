@@ -6,15 +6,18 @@ var groundMoveSpeed: float = 5;
 var airMoveSpeed: float = 20;
 var liftAccelTime: float = 1;
 
+public var throttleThrust: float = 2;
+
 private var anim: Animator;
 
-private var idle: boolean = true;
-private var walk: boolean = false;
-private var takeoff: boolean = false;
-private var fly: boolean = false;
-private var land: boolean = false;
-private var attack: boolean = false;
-private var die: boolean = false;
+private var idling: boolean = true;
+private var walking: boolean = false;
+private var takingOff: boolean = false;
+private var flying: boolean = false;
+private var landing: boolean = false;
+private var hurting: boolean = false;
+private var attacking: boolean = false;
+private var dying: boolean = false;
 
 private var wallWalker: WallWalker;
 private var rb: Rigidbody;
@@ -22,7 +25,7 @@ private var col: CapsuleCollider;
 
 private var initialGravity: float;
 private var currentVerticalLift: float;
-private var startVerticalLift: float = ascendSpeed/5;
+private var startVerticalLift: float = ascendSpeed/2;
 
 private var yVelocity: float = 0.0;
 
@@ -32,113 +35,169 @@ function Start() {
 	col = GetComponent.<CapsuleCollider>();
 	wallWalker = GetComponent('WallWalker');
 
-	// Store intial gravity so we can shut it off
 	initialGravity = wallWalker.gravity;
 }
 
 function FixedUpdate() {
-	var jumpInput: float = Input.GetAxis('Jump');
+	var jumpInput: float = Input.GetAxis("Jump");
+	var throttleInput: float = wallWalker.throttleStick ? Input.GetAxis(wallWalker.throttleStick) : 0;
 
 	// Add accelation component
-	if (!jumpInput && currentVerticalLift != startVerticalLift) {
-		// Reset lift speed if we stop moving
-		currentVerticalLift = Mathf.SmoothDamp(currentVerticalLift, startVerticalLift, yVelocity, liftAccelTime);
-	}
-	else {
+	if (jumpInput > 0) {
 		// Slowly increase lift speed
 		currentVerticalLift = Mathf.SmoothDamp(currentVerticalLift, ascendSpeed, yVelocity, liftAccelTime);
+	}
+	else {
+		// Reset lift speed if we stop moving
+		currentVerticalLift = Mathf.SmoothDamp(currentVerticalLift, startVerticalLift, yVelocity, liftAccelTime);
 	}
 
 	// Center the collider based on the capsulePosition animation parameter set in curves
 	col.center.y = anim.GetFloat('capsulePosition') * 0.017 + 0.005;
 
 	if (wallWalker.isGrounded) {
-		wallWalker.moveSpeed = groundMoveSpeed;
-		
-		if (fly) {
-			doLand();
+		wallWalker.gravity = initialGravity;
+
+		if (flying) {
+			land();
 		}
 
 		if (Mathf.Abs(wallWalker.speed) > 0) {
-			// If we're on the ground and moving, walk
-			idle = false;
-			walk = true;
+			walk();
 		}
 		else {
-			idle = true;
-			walk = false;
+			idle();
 		}
 
-		if (jumpInput) {
-			if (!takeoff) {
-				doTakeoff();
+		if (jumpInput || (throttleInput > 0 && wallWalker.controlStyle != 'Simple')) {
+			if (!takingOff) {
+				takeOff();
 			}
-
-			// Go up a bit
-			transform.Translate(0, currentVerticalLift * Time.deltaTime, 0);
+			else {
+				Debug.Log("Jump input caused takeOff condition to be called");
+			}
 		}
 	}
 	else {
-		wallWalker.moveSpeed = airMoveSpeed;
-
-		// If we're in the air, flap wings
-		idle = false;
-		fly = true;
-		walk = false;
-
+		wallWalker.gravity = 0;
+		fly();
+	}
+	
+	if (wallWalker.controlStyle == 'Simple') {
 		if (jumpInput) {
 			// Go up a bit
 			transform.Translate(0, currentVerticalLift * Time.deltaTime, 0);
 		}
-		else {
+		else if (!wallWalker.isGrounded) {
 			// Go down a bit
 			transform.Translate(0, -descendSpeed * Time.deltaTime, 0);
 		}
 	}
-	
-	// Attack while flying, walking, or idle
-	if ((fly || walk || idle) && Input.GetButtonDown('Fire1')) {
-		attack = true;
-	}
 	else {
-		attack = false;
+    rb.AddForce(transform.up * throttleInput * throttleThrust, ForceMode.Impulse);
 	}
 
-	if (fly) {
-		// Counteract gravity when we're in the air
-		// rb.AddForce(wallWalker.gravity * rb.mass * transform.up);
+	if (flying) {
+		// Attack while flying only
+		if (Input.GetButtonDown('Fire1')) {
+			attack();
+		}
 	}
 
-	// Todo: if grounded and jump pressed, takeoff
-	// Todo: if flying and then grounded, landing
 	// Todo: hit
-	// Todo: die
+	// Todo: dying
 
 	// Set animation parameters
-	anim.SetBool('idle', idle);
-	anim.SetBool('walk', walk);
-	anim.SetBool('takeoff', takeoff);
-	anim.SetBool('fly', fly);
-	anim.SetBool('land', land);
-	anim.SetBool('attack', attack);
-	anim.SetBool('die', die);
+	anim.SetBool('idling', idling);
+	anim.SetBool('walking', walking);
+	anim.SetBool('takingOff', takingOff);
+	anim.SetBool('flying', flying);
+	anim.SetBool('landing', landing);
+	anim.SetBool('attacking', attacking);
+	anim.SetBool('dying', dying);
 }
 
-function doTakeoff() {
-	idle = false;
-	takeoff = true;
-	wallWalker.gravity = 0;
-	yield WaitForSeconds(0.5);
-	takeoff = false;
-	fly = true;
+function idle() {
+	walking = false;
+	flying = false;
+
+	idling = true;
 }
 
+function fly() {
+	idling = false;
+	walking = false;
 
-function doLand(){
-	idle = false;
-	fly = false;
-	land = true;
-	wallWalker.gravity = initialGravity;
-	yield WaitForSeconds(0.5);
-	land = false;
+	wallWalker.moveSpeed = airMoveSpeed;
+
+	flying = true;
+}
+
+function walk() {
+	idling = false;
+	flying = false;
+
+	walking = true;
+
+	wallWalker.moveSpeed = groundMoveSpeed;
+}
+
+function hurt() {
+	// Todo: Correpsonding animation transitions
+	// Todo: Trigger from impacts
+	hurting = true;
+	yield WaitForFixedUpdate();
+	hurting = false;
+}
+
+function attack() {
+	// Todo: Trigger hits
+	attacking = true;
+	yield WaitForFixedUpdate();
+	attacking = false;
+}
+
+function die() {
+	idling = false;
+	walking = false;
+	flying = false;
+	landing = false;
+	takingOff = false;
+
+	// Todo: Correpsonding animation transitions
+	// Todo: Trigger from low health
+	dying = true;
+	yield WaitForFixedUpdate();
+	dying = false;
+}
+
+function takeOff() {
+	idling = false;
+	walking = false;
+	flying = false;
+	landing = false;
+
+	takingOff = true;
+	yield WaitForFixedUpdate();
+	takingOff = false;
+
+	fly();
+}
+
+function land() {
+	idling = false;
+	walking = false;
+	flying = false;
+	takingOff = false;
+
+	landing = true;
+	yield WaitForFixedUpdate();
+	landing = false;
+
+	if (Input.GetAxis("Throttle")) {
+		walk();
+	}
+	else {
+		idle();
+	}
 }
