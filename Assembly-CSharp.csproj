@@ -52,6 +52,7 @@
      <Compile Include="Assets\Scripts\AssignSplatMap.cs" />
      <Compile Include="Assets\Scripts\BasicWaspDrone.cs" />
      <Compile Include="Assets\Scripts\WallWalker.cs" />
+     <Compile Include="Assets\Scripts\Wasp.cs" />
      <Compile Include="Assets\Scripts\WaspDrone.cs" />
      <None Include="Assets\Models\Wasp\Wasp_readme.txt" />
  <Reference Include="UnityEngine.Analytics">
