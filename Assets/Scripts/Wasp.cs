@@ -15,15 +15,6 @@ public class Wasp : MonoBehaviour {
 
   private Animator anim;
 
-  private bool idling = true;
-  private bool walking = false;
-  private bool takingOff = false;
-  private bool flying = false;
-  private bool landing = false;
-  private bool hurting = false;
-  private bool attacking = false;
-  private bool dying = false;
-
   private WallWalker wallWalker;
   private Rigidbody rb;
 
@@ -46,40 +37,42 @@ public class Wasp : MonoBehaviour {
     initialGravity = wallWalker.gravity;
   }
 
-  void Update() {
+  void FixedUpdate() {
     jumpInput = Input.GetAxis("Jump");
     throttleInput = wallWalker.throttleStick != "" ? Input.GetAxis(wallWalker.throttleStick) : 0;
 
     if (wallWalker.isGrounded) {
       wallWalker.gravity = initialGravity;
+      wallWalker.moveSpeed = groundMoveSpeed;
 
-      if (flying) {
+      if (anim.GetCurrentAnimatorStateInfo(0).IsName("fly")) {
         land();
       }
-
-      if (Mathf.Abs(wallWalker.speed) > 0) {
-        walk();
-      }
       else {
-        idle();
-      }
-
-      if (jumpInput != 0 || (throttleInput > 0 && wallWalker.controlStyle != "Simple")) {
-        if (!takingOff) {
-          takeOff();
+        if (wallWalker.speed != 0) {
+          walk();
         }
         else {
-          Debug.Log("Jump input caused takeOff condition to be called");
+          idle();
+        }
+
+        if (jumpInput != 0 || (throttleInput > 0 && wallWalker.controlStyle != "Simple")) {
+          takeOff();
         }
       }
     }
     else {
       wallWalker.gravity = 0;
-      fly();
-    }
-  }
+      wallWalker.moveSpeed = airMoveSpeed;
 
-  void FixedUpdate() {
+      if (anim.GetCurrentAnimatorStateInfo(0).IsName("idle") || anim.GetCurrentAnimatorStateInfo(0).IsName("walk")) {
+        takeOff();
+      }
+      else {
+        fly();
+      }
+    }
+
     // Add accelation component
     if (jumpInput > 0) {
       // Slowly increase lift speed
@@ -101,112 +94,84 @@ public class Wasp : MonoBehaviour {
       }
     }
     else {
+      if (jumpInput != 0) {
+        throttleInput = jumpInput;
+      }
+
       // Bug: Need to clamp force somehow, can go so fast it flies through things
       rb.AddForce(transform.up * throttleInput * throttleThrust, ForceMode.Impulse);
     }
 
-    if (flying) {
-      // Attack while flying only
-      if (Input.GetButtonDown("Fire1")) {
-        attack();
-      }
+    if (Input.GetButtonDown("Fire1")) {
+      attack();
     }
 
     // Todo: hit
     // Todo: dying
-
-    // Set animation parameters
-    anim.SetBool("idling", idling);
-    anim.SetBool("walking", walking);
-    anim.SetBool("takingOff", takingOff);
-    anim.SetBool("flying", flying);
-    anim.SetBool("landing", landing);
-    anim.SetBool("attacking", attacking);
-    anim.SetBool("dying", dying);
   }
 
   void idle() {
-    walking = false;
-    flying = false;
-
-    idling = true;
-  }
-
-  void fly() {
-    idling = false;
-    walking = false;
-
-    wallWalker.moveSpeed = airMoveSpeed;
-
-    flying = true;
+    Debug.Log("Idle");
+    anim.ResetTrigger("walking");
+    anim.ResetTrigger("flying");
+    anim.SetTrigger("idling");
   }
 
   void walk() {
-    idling = false;
-    flying = false;
-
-    walking = true;
-
-    wallWalker.moveSpeed = groundMoveSpeed;
+    Debug.Log("Walk");
+    anim.ResetTrigger("flying");
+    anim.ResetTrigger("idling");
+    anim.SetTrigger("walking");
   }
 
-  IEnumerator hurt() {
+  void fly() {
+    Debug.Log("Fly");
+    anim.ResetTrigger("idling");
+    anim.ResetTrigger("walking");
+    anim.SetTrigger("flying");
+  }
+
+  void hurt() {
+    Debug.Log("Hurt");
     // Todo: Correpsonding animation transitions
     // Todo: Trigger from impacts
-    hurting = true;
-    yield return new WaitForFixedUpdate();
-    hurting = false;
+    anim.SetTrigger("hurting");
   }
 
-  IEnumerator attack() {
+  void attack() {
+    Debug.Log("Attack");
     // Todo: Trigger hits
-    attacking = true;
-    yield return new WaitForFixedUpdate();
-    attacking = false;
+    anim.SetTrigger("attacking");
   }
 
-  IEnumerator die() {
-    idling = false;
-    walking = false;
-    flying = false;
-    landing = false;
-    takingOff = false;
+  void die() {
+    Debug.Log("Die");
+    anim.ResetTrigger("idling");
+    anim.ResetTrigger("walking");
+    anim.ResetTrigger("flying");
 
     // Todo: Correpsonding animation transitions
     // Todo: Trigger from low health
-    dying = true;
-    yield return new WaitForFixedUpdate();
-    dying = false;
+    anim.SetTrigger("dying");
   }
 
-  IEnumerator takeOff() {
-    idling = false;
-    walking = false;
-    flying = false;
-    landing = false;
+  void takeOff() {
+    Debug.Log("TakeOff");
+    anim.ResetTrigger("idling");
+    anim.ResetTrigger("walking");
+    anim.ResetTrigger("flying");
 
-    takingOff = true;
-    yield return new WaitForFixedUpdate();
-    takingOff = false;
-
-    fly();
+    anim.ResetTrigger("landing");
+    anim.SetTrigger("takingOff");
   }
 
-  IEnumerator land() {
-    idling = false;
-    walking = false;
-    flying = false;
-    takingOff = false;
+  void land() {
+    Debug.Log("Land");
+    anim.ResetTrigger("idling");
+    anim.ResetTrigger("walking");
+    anim.ResetTrigger("flying");
 
-    landing = true;
-    yield return new WaitForFixedUpdate();
-    landing = false;
-
-    if (Input.GetAxis("Throttle") != 0) {
-      walk();
-    }
-    else {
-      idle();
-    }
+    anim.ResetTrigger("takingOff");
+    anim.SetTrigger("landing");
   }
 }

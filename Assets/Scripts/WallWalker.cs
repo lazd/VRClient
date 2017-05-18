@@ -133,7 +133,8 @@ public class WallWalker : MonoBehaviour {
 			currentSpeed = startSpeed;
 		}
 
-		var actualPosition = transform.position + GetComponent<CapsuleCollider>().center;
+		// var actualPosition = transform.position + GetComponent<CapsuleCollider>().center;
+		var actualPosition = transform.position;
 
 		// Calculate forward motion based on stick input
 		forwardMotion = forwardInput * currentSpeed;
@@ -172,10 +173,12 @@ public class WallWalker : MonoBehaviour {
 		}
 
 		// Cast ray downwards to detect if we"re on the ground
-		var groundedRayFudgeFactor = 0.5f;
 		// var groundedRayFudgeFactor = GetComponent<Collider>().bounds.extents.y/2;
-		var rayPosition = actualPosition + new Vector3(0, groundedRayFudgeFactor, 0);
-		isGrounded = Physics.Raycast(rayPosition, -transform.up, distGround + groundedRayFudgeFactor + 0.05f);
+		// var rayPosition = actualPosition + new Vector3(0, groundedRayFudgeFactor, 0);
+		// isGrounded = Physics.Raycast(rayPosition, -transform.up, distGround + groundedRayFudgeFactor + 0.05f);
+
+		isGrounded = Physics.Raycast(actualPosition, -transform.up, distGround + 0.05f);
+
 
 		// Turn left/right with horizontal axis:
 		transform.Rotate(0, yawInput * turnSpeed * Time.deltaTime, 0);
