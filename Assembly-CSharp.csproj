@@ -52,6 +52,7 @@
      <Compile Include="Assets\Scripts\Droid.cs" />
      <Compile Include="Assets\Scripts\FollowCamera.cs" />
      <Compile Include="Assets\Scripts\MeleeWeapon.cs" />
+     <Compile Include="Assets\Scripts\Rotator.cs" />
      <Compile Include="Assets\Scripts\WallWalker.cs" />
      <Compile Include="Assets\Scripts\Wasp.cs" />
      <Compile Include="Assets\Scripts\WaspDrone.cs" />

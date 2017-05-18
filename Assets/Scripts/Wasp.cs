@@ -111,41 +111,35 @@ public class Wasp : MonoBehaviour {
   }
 
   void idle() {
-    Debug.Log("Idle");
     anim.ResetTrigger("walking");
     anim.ResetTrigger("flying");
     anim.SetTrigger("idling");
   }
 
   void walk() {
-    Debug.Log("Walk");
     anim.ResetTrigger("flying");
     anim.ResetTrigger("idling");
     anim.SetTrigger("walking");
   }
 
   void fly() {
-    Debug.Log("Fly");
     anim.ResetTrigger("idling");
     anim.ResetTrigger("walking");
     anim.SetTrigger("flying");
   }
 
   void hurt() {
-    Debug.Log("Hurt");
     // Todo: Correpsonding animation transitions
     // Todo: Trigger from impacts
     anim.SetTrigger("hurting");
   }
 
   void attack() {
-    Debug.Log("Attack");
     // Todo: Trigger hits
     anim.SetTrigger("attacking");
   }
 
   void die() {
-    Debug.Log("Die");
     anim.ResetTrigger("idling");
     anim.ResetTrigger("walking");
     anim.ResetTrigger("flying");
@@ -156,7 +150,6 @@ public class Wasp : MonoBehaviour {
   }
 
   void takeOff() {
-    Debug.Log("TakeOff");
     anim.ResetTrigger("idling");
     anim.ResetTrigger("walking");
     anim.ResetTrigger("flying");
@@ -166,7 +159,6 @@ public class Wasp : MonoBehaviour {
   }
 
   void land() {
-    Debug.Log("Land");
     anim.ResetTrigger("idling");
     anim.ResetTrigger("walking");
     anim.ResetTrigger("flying");

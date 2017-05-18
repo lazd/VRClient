@@ -1,6 +1,0 @@
-﻿#pragma strict
-
-// Called once per frame
-function Update () {
-	transform.Rotate(new Vector3(15, 30, 45) * Time.deltaTime);
-}
