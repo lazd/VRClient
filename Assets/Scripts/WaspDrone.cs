@@ -7,11 +7,12 @@ public class WaspDrone : Wasp {
     public Vector3 maxForces;                       //the amount of torque available for each axis, based on thrust
 
     public Vector3 maxV = new Vector3(8,8,8);       //max desired rate of change
-    public Vector3 expo = new Vector3(1.8f, 1.8f, 1.8f);
 
     public Vector3 Kp = new Vector3(4, 4, 4);
     public Vector3 Ki = new Vector3(.007f,.007f,.007f);
     public Vector3 Kd = new Vector3(0,0,0); 
+
+    public FollowCamera followCamera;
 
     protected Vector3 targetVelocity;               //user input determines how fast user wants ship to rotate
     protected Vector3 curVelocity;                  //holds the rb.angularVelocity converted from world space to local
@@ -20,7 +21,8 @@ public class WaspDrone : Wasp {
 
     protected Vector3 inputs;
 
-    public FollowCamera followCamera;
+    // Velocity vector for damping
+    private Vector3 dampVelocity = Vector3.zero;
 
     protected override void Start() {
         base.Start();
@@ -57,9 +59,9 @@ public class WaspDrone : Wasp {
 
         // Apply expo
         inputs = new Vector3(
-            Mathf.Sign(inputs.x) * Mathf.Pow(Mathf.Abs(inputs.x), expo.x),
-            Mathf.Sign(inputs.y) * Mathf.Pow(Mathf.Abs(inputs.y), expo.y),
-            Mathf.Sign(inputs.z) * Mathf.Pow(Mathf.Abs(inputs.z), expo.z)
+            Mathf.Sign(inputs.x) * Mathf.Pow(Mathf.Abs(inputs.x), moveExpo),
+            Mathf.Sign(inputs.y) * Mathf.Pow(Mathf.Abs(inputs.y), moveExpo),
+            Mathf.Sign(inputs.z) * Mathf.Pow(Mathf.Abs(inputs.z), moveExpo)
         );
 
         targetVelocity = Vector3.Scale (inputs, maxV);
@@ -93,8 +95,10 @@ public class WaspDrone : Wasp {
         beSticky();
 
         if (isGrounded) {
-            followCamera.cameraAngle = 0;
-            followCamera.offset = new Vector3(0, -1.5f, 4f);
+            followCamera.cameraAngle = Mathf.Lerp(followCamera.cameraAngle, 0, Time.deltaTime * 0.5f);
+            followCamera.offset = Vector3.SmoothDamp(followCamera.offset, new Vector3(0, -4f, 10f), ref dampVelocity, 0.5f);
+            followCamera.rotationSpeed = 2f;
+            followCamera.positionDamping = 0.25f;
 
             // Otherwise, be a wallwalker
 
@@ -106,8 +110,10 @@ public class WaspDrone : Wasp {
         }
         else {
             // Follow from underneath
-            followCamera.cameraAngle = 20f;
-            followCamera.offset = new Vector3(0, 1.5f, 5f);
+            followCamera.cameraAngle = Mathf.Lerp(followCamera.cameraAngle, 20f, Time.deltaTime * 0.5f);
+            followCamera.offset = Vector3.SmoothDamp(followCamera.offset, new Vector3(0, 1.5f, 5f), ref dampVelocity, 0.5f);
+            followCamera.rotationSpeed = 8f;
+            followCamera.positionDamping = 0.001f;
 
             // Enable physics rotation
             rb.freezeRotation = false;

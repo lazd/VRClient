@@ -13,8 +13,8 @@ public class FollowCamera : MonoBehaviour {
   // Damping for position changes
   public float positionDamping = 0.3f;
 
-  // Damping for rotation changes
-  public float rotationDamping = 0.6f;
+  // Speed for rotation changes
+  public float rotationSpeed = 0.6f;
 
   // Damping for position changes that result from a collision
   public float collisionDamping = 0.5f;
@@ -84,7 +84,7 @@ public class FollowCamera : MonoBehaviour {
     }
 
     // Lerp rotation
-    currentRotation = Vector3.Lerp(currentRotation, target.transform.up, Time.deltaTime * rotationDamping);
+    currentRotation = Vector3.Lerp(currentRotation, target.transform.up, Time.deltaTime * rotationSpeed);
 
     // By default, look at the taraget
     var lookAtATarget = target.transform.position;
