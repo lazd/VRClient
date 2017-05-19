@@ -11,6 +11,12 @@ public class Ant : WallWalker {
   public bool isJumping = false;
 
   protected override void FixedUpdate() {
+    // Run WallWalker calculations so we get isGroudned and inputs
+    base.calculate();
+
+    // Be sticky no matter what
+    base.beSticky();
+
     base.wallWalk();
 
     // Perform jump

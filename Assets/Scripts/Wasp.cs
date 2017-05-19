@@ -31,6 +31,12 @@ public class Wasp : WallWalker {
   }
 
   protected override void wallWalk() {
+    // Run WallWalker calculations so we get isGroudned and inputs
+    base.calculate();
+
+    // Be sticky no matter what
+    base.beSticky();
+
     base.wallWalk();
 
     jumpInput = Input.GetAxis("Jump");
