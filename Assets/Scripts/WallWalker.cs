@@ -15,9 +15,17 @@ public class WallWalker : MonoBehaviour {
 	public float airControlFactor = 0.5f;
 	public float accelTime = 1f;
 
-	// Control style: Simple, Mode1, Mode2, Mode3, Mode4
-	// Todo: enum
-	public String controlStyle = "Simple";
+	// Control style
+	public enum ControlStyle
+	{
+		Simple,
+		Mode1,
+		Mode2,
+		Mode3,
+		Mode4
+	}
+
+	public ControlStyle controlStyle = ControlStyle.Mode2;
 
 	// The expo to apply to stick inputs
 	// This eases twitchyness
@@ -83,31 +91,31 @@ public class WallWalker : MonoBehaviour {
 	}
 
 	public void ApplyControlStyle() {
-		if (controlStyle == "Simple") {
+		if (controlStyle == ControlStyle.Simple) {
 			forwardStick = "Throttle";
 			strafeStick = "";
 			yawStick = "Yaw";
 			throttleStick = "";
 		}
-		else if (controlStyle == "Mode1") {
+		else if (controlStyle == ControlStyle.Mode1) {
 			throttleStick = "Pitch";
 			forwardStick = "Throttle";
 			strafeStick = "Roll";
 			yawStick = "Yaw";
 		}
-		else if (controlStyle == "Mode2") {
+		else if (controlStyle == ControlStyle.Mode2) {
 			throttleStick = "Throttle";
 			forwardStick = "Pitch";
 			strafeStick = "Roll";
 			yawStick = "Yaw";
 		}
-		else if (controlStyle == "Mode3") {
+		else if (controlStyle == ControlStyle.Mode3) {
 			throttleStick = "Pitch";
 			forwardStick = "Throttle";
 			strafeStick = "Yaw";
 			yawStick = "Roll";
 		}
-		else if (controlStyle == "Mode4") {
+		else if (controlStyle == ControlStyle.Mode4) {
 			throttleStick = "Throttle";
 			forwardStick = "Pitch";
 			strafeStick = "Yaw";

@@ -59,7 +59,7 @@ public class Wasp : WallWalker {
           idle();
         }
 
-        if (jumpInput || (throttleInput > 0 && controlStyle != "Simple")) {
+        if (jumpInput || (throttleInput > 0 && controlStyle != ControlStyle.Simple)) {
           takeOff();
         }
       }
@@ -86,7 +86,7 @@ public class Wasp : WallWalker {
       currentVerticalLift = Mathf.SmoothDamp(currentVerticalLift, startVerticalLift, ref yVelocity, liftAccelTime);
     }
 
-    if (controlStyle == "Simple") {
+    if (controlStyle == ControlStyle.Simple) {
       if (jumpInput) {
         // Go up a bit
         transform.Translate(0, currentVerticalLift * Time.deltaTime, 0);
