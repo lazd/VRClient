@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using System.Collections;
+using UnityStandardAssets.CrossPlatformInput;
 
 public class Ant : WallWalker {
   /** Configuration */
@@ -21,16 +22,16 @@ public class Ant : WallWalker {
 
     // Perform jump
     if (isGrounded) {
-      if (!isJumping && ((throttleStick != "" && Input.GetAxis(throttleStick) > 0) || Input.GetButton("Jump"))) {
+      if (!isJumping && ((throttleStick != "" && CrossPlatformInputManager.GetAxis(throttleStick) > 0) || CrossPlatformInputManager.GetButton("Jump"))) {
         isJumping = true;
         StartCoroutine(jump());
       }
     }
 
   	// Set animation parameters
-  	anim.SetBool("attack", Input.GetButtonDown("Fire1"));
-  	anim.SetBool("attack2", Input.GetButtonDown("Fire2"));
-  	anim.SetBool("attack3", Input.GetButtonDown("Fire3"));
+  	anim.SetBool("attack", CrossPlatformInputManager.GetButtonDown("Fire1"));
+  	anim.SetBool("attack2", CrossPlatformInputManager.GetButtonDown("Fire2"));
+  	// anim.SetBool("attack3", CrossPlatformInputManager.GetButtonDown("Fire3"));
   }
 
   protected IEnumerator jump() {

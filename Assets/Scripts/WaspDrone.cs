@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections;
+using UnityStandardAssets.CrossPlatformInput;
 
 public class WaspDrone : Wasp {
     public Vector3 thrust = new Vector3(1,1,1);     //Total thrust per axis
@@ -21,11 +22,23 @@ public class WaspDrone : Wasp {
 
     protected Vector3 inputs;
 
+    public float throttleAngle = 35f;
+    public float descentThrust = 0.01f;
+    public float descentAngle = -10f;
+
     // Velocity vector for damping
     private Vector3 dampVelocity = Vector3.zero;
 
+    private float initialDrag;
+    private float initialAttractionDistance;
+    private float maxAttractionDistance;
+
     protected override void Start() {
         base.Start();
+
+        initialDrag = rb.drag;
+        initialAttractionDistance = attractionDistance;
+        maxAttractionDistance = attractionDistance * 2;
 
         ApplyValues();  
     }
@@ -50,7 +63,7 @@ public class WaspDrone : Wasp {
     }
 
     protected float getI(string axis) {
-        return Input.GetAxisRaw(axis);          
+        return CrossPlatformInputManager.GetAxisRaw(axis);          
     }
 
     protected virtual void SetVelocities(){
@@ -95,8 +108,8 @@ public class WaspDrone : Wasp {
         beSticky();
 
         if (isGrounded) {
-            followCamera.cameraAngle = Mathf.Lerp(followCamera.cameraAngle, 0, Time.deltaTime * 0.5f);
-            followCamera.offset = Vector3.SmoothDamp(followCamera.offset, new Vector3(0, -4f, 10f), ref dampVelocity, 0.5f);
+            followCamera.cameraAngle = Mathf.Lerp(followCamera.cameraAngle, 10f, Time.deltaTime * 0.5f);
+            followCamera.offset = Vector3.SmoothDamp(followCamera.offset, new Vector3(0, -2f, 7f), ref dampVelocity, 0.5f);
             followCamera.rotationSpeed = 2f;
             followCamera.positionDamping = 0.25f;
 
@@ -111,7 +124,7 @@ public class WaspDrone : Wasp {
         else {
             // Follow from underneath
             followCamera.cameraAngle = Mathf.Lerp(followCamera.cameraAngle, 20f, Time.deltaTime * 0.5f);
-            followCamera.offset = Vector3.SmoothDamp(followCamera.offset, new Vector3(0, 1.5f, 5f), ref dampVelocity, 0.5f);
+            followCamera.offset = Vector3.SmoothDamp(followCamera.offset, new Vector3(0, 0, 6f), ref dampVelocity, 0.5f);
             followCamera.rotationSpeed = 8f;
             followCamera.positionDamping = 0.001f;
 
@@ -120,7 +133,31 @@ public class WaspDrone : Wasp {
             rb.useGravity = true;
 
             // Throttle
-            rb.AddForce(transform.up * throttleInput * throttleThrust, ForceMode.Impulse);
+            if (throttleInput >= 0) {
+                // Harder  to be attracted to things when giving throttle
+                // This makes takeoff eaiser and flying nearer to things possible
+                // attractionDistance = initialAttractionDistance / 2;
+
+                // No airbrakes
+                rb.drag = initialDrag;
+
+                // Angle it forward, it feels nicer
+                rb.AddForce(Quaternion.AngleAxis(throttleAngle, transform.right) * transform.up * throttleInput * throttleThrust, ForceMode.Impulse);
+            }
+            
+            if (throttleInput < 0) {
+                // Airbrakes
+                rb.drag = initialDrag * 4 * -throttleInput;
+
+                // Increase attraction distance so the wasp lands
+                // attractionDistance = maxAttractionDistance;
+
+                // Descend
+                rb.AddForce(Quaternion.AngleAxis(descentAngle, transform.right) * transform.up * throttleInput * descentThrust, ForceMode.Impulse);
+            }
+            else {
+                attractionDistance = initialAttractionDistance;
+            }
 
             // Run the PID flight controller
             RCS();

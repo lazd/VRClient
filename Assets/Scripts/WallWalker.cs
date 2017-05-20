@@ -2,6 +2,8 @@
 using System;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
+using UnityStandardAssets.CrossPlatformInput;
 
 public class WallWalker : MonoBehaviour {
 
@@ -120,16 +122,16 @@ public class WallWalker : MonoBehaviour {
 
 	protected virtual void calculate() {
 		if (throttleStick != "") {
-			throttleInput = Mathf.Sign(Input.GetAxis(throttleStick)) * Mathf.Pow(Mathf.Abs(Input.GetAxis(throttleStick)), moveExpo);
+			throttleInput = Mathf.Sign(CrossPlatformInputManager.GetAxis(throttleStick)) * Mathf.Pow(Mathf.Abs(CrossPlatformInputManager.GetAxis(throttleStick)), moveExpo);
 		}
 		if (forwardStick != "") {
-			forwardInput = Mathf.Sign(Input.GetAxis(forwardStick)) * Mathf.Pow(Mathf.Abs(Input.GetAxis(forwardStick)), moveExpo);
+			forwardInput = Mathf.Sign(CrossPlatformInputManager.GetAxis(forwardStick)) * Mathf.Pow(Mathf.Abs(CrossPlatformInputManager.GetAxis(forwardStick)), moveExpo);
 		}
 		if (yawStick != "") {
-			yawInput = Mathf.Sign(Input.GetAxis(yawStick)) * Mathf.Pow(Mathf.Abs(Input.GetAxis(yawStick)), moveExpo);
+			yawInput = Mathf.Sign(CrossPlatformInputManager.GetAxis(yawStick)) * Mathf.Pow(Mathf.Abs(CrossPlatformInputManager.GetAxis(yawStick)), moveExpo);
 		}
 		if (strafeStick != "") {
-			strafeInput = Mathf.Sign(Input.GetAxis(strafeStick)) * Mathf.Pow(Mathf.Abs(Input.GetAxis(strafeStick)), moveExpo);
+			strafeInput = Mathf.Sign(CrossPlatformInputManager.GetAxis(strafeStick)) * Mathf.Pow(Mathf.Abs(CrossPlatformInputManager.GetAxis(strafeStick)), moveExpo);
 		} 
 
 		// Cast ray downwards to detect if we"re on the ground

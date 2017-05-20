@@ -2,6 +2,7 @@
 using System;
 using UnityEngine;
 using System.Collections;
+using UnityStandardAssets.CrossPlatformInput;
 
 public class Wasp : WallWalker {
   public float ascendSpeed = 5f;
@@ -16,7 +17,8 @@ public class Wasp : WallWalker {
   private float currentVerticalLift;
   private float startVerticalLift;
 
-  protected float jumpInput;
+  protected bool jumpInput;
+  protected bool descendInput;
 
   protected override void Start() {
     base.Start();
@@ -39,7 +41,8 @@ public class Wasp : WallWalker {
 
     base.wallWalk();
 
-    jumpInput = Input.GetAxis("Jump");
+    jumpInput = CrossPlatformInputManager.GetButton("Jump");
+    descendInput = CrossPlatformInputManager.GetButton("Descend");
 
     if (isGrounded) {
       gravity = initialGravity;
@@ -56,7 +59,7 @@ public class Wasp : WallWalker {
           idle();
         }
 
-        if (jumpInput != 0 || (throttleInput > 0 && controlStyle != "Simple")) {
+        if (jumpInput || (throttleInput > 0 && controlStyle != "Simple")) {
           takeOff();
         }
       }
@@ -74,7 +77,7 @@ public class Wasp : WallWalker {
     }
 
     // Add accelation component
-    if (jumpInput > 0) {
+    if (jumpInput) {
       // Slowly increase lift speed
       currentVerticalLift = Mathf.SmoothDamp(currentVerticalLift, ascendSpeed, ref yVelocity, liftAccelTime);
     }
@@ -84,7 +87,7 @@ public class Wasp : WallWalker {
     }
 
     if (controlStyle == "Simple") {
-      if (jumpInput != 0) {
+      if (jumpInput) {
         // Go up a bit
         transform.Translate(0, currentVerticalLift * Time.deltaTime, 0);
       }
@@ -94,8 +97,11 @@ public class Wasp : WallWalker {
       }
     }
     else {
-      if (jumpInput != 0) {
-        throttleInput = jumpInput;
+      if (jumpInput) {
+        throttleInput = throttleThrust;
+      }
+      if (descendInput) {
+        throttleInput = -throttleThrust;
       }
 
       // Bug: Need to clamp force somehow, can go so fast it flies through things
