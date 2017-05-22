@@ -1,7 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRClient", "Assembly-CSharp-firstpass.csproj", "{555D9E5B-5432-3A2E-1A3D-568BCEB27295}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRClient", "Assembly-CSharp.csproj", "{B7A084A9-AA39-CC91-7D00-96D4CECFE26E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRClient", "Assembly-CSharp-Editor-firstpass.csproj", "{14FB3BC7-14E3-064A-4FDB-CAA2FEF7C2CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +13,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{555D9E5B-5432-3A2E-1A3D-568BCEB27295}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{555D9E5B-5432-3A2E-1A3D-568BCEB27295}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{555D9E5B-5432-3A2E-1A3D-568BCEB27295}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{555D9E5B-5432-3A2E-1A3D-568BCEB27295}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B7A084A9-AA39-CC91-7D00-96D4CECFE26E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B7A084A9-AA39-CC91-7D00-96D4CECFE26E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7A084A9-AA39-CC91-7D00-96D4CECFE26E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7A084A9-AA39-CC91-7D00-96D4CECFE26E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14FB3BC7-14E3-064A-4FDB-CAA2FEF7C2CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14FB3BC7-14E3-064A-4FDB-CAA2FEF7C2CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14FB3BC7-14E3-064A-4FDB-CAA2FEF7C2CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14FB3BC7-14E3-064A-4FDB-CAA2FEF7C2CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

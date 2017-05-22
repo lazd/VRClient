@@ -6,7 +6,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{9860A0E4-7F6A-DB2F-22E8-020AB97165B4}</ProjectGuid>
+    <ProjectGuid>{B7A084A9-AA39-CC91-7D00-96D4CECFE26E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -56,6 +56,7 @@
      <Compile Include="Assets\Scripts\WallWalker.cs" />
      <Compile Include="Assets\Scripts\Wasp.cs" />
      <Compile Include="Assets\Scripts\WaspDrone.cs" />
+     <Compile Include="Assets\StartDialog.cs" />
      <None Include="Assets\Standard Assets\Fonts\OpenSans\License!.txt" />
      <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
      <None Include="Assets\Models\Wasp\Wasp_readme.txt" />
@@ -83,7 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
-      <Project>{BA312FB1-264B-4429-5E7C-4A2F1179F2D8}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
+      <Project>{555D9E5B-5432-3A2E-1A3D-568BCEB27295}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
