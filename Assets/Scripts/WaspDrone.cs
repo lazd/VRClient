@@ -31,14 +31,14 @@ public class WaspDrone : Wasp {
 
     private float initialDrag;
     private float initialAttractionDistance;
-    private float maxAttractionDistance;
+    // private float maxAttractionDistance;
 
     protected override void Start() {
         base.Start();
 
         initialDrag = rb.drag;
         initialAttractionDistance = attractionDistance;
-        maxAttractionDistance = attractionDistance * 2;
+        // maxAttractionDistance = attractionDistance * 2;
 
         ApplyValues();  
     }

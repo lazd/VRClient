@@ -12,19 +12,18 @@ public class StartDialog : MonoBehaviour {
 	public GameObject dualTouchControls;
 	public GameObject leftTouchControls;
 
+  private GameObject dialog;
+
 	// Use this for initialization
 	void Start () {
+    dialog = transform.Find("Dialog").gameObject;
 		
+    // Show canvas
+    dialog.SetActive(true);
 	}
 	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-
 	public void startGame() {
 		// Get settings from dropdowns
-		var dialog = transform.Find("Dialog").gameObject;
 		var character = transform.Find("Dialog/Character/Label").GetComponent<Text>().text;
 		var controlStyle = transform.Find ("Dialog/Control Style/Label").GetComponent<Text>().text;
 
@@ -38,7 +37,8 @@ public class StartDialog : MonoBehaviour {
 		}
 
 		if (controlStyle == "Simple") {
-			leftTouchControls.SetActive (true);
+      leftTouchControls.SetActive (true);
+			mobileButtons.SetActive (true);
 			activeCharacter.GetComponent<WallWalker>().controlStyle = WallWalker.ControlStyle.Mode1;
 		}
 		else {
@@ -50,6 +50,9 @@ public class StartDialog : MonoBehaviour {
 		// Follow the character and enable it
 		followCamera.target = activeCharacter;
 		activeCharacter.SetActive (true);
+
+    activeCharacter.transform.position = new Vector3(84.81f, 0.05f, -74.2f);
+    activeCharacter.transform.rotation = Quaternion.Euler(0, -36f, 0);
 
 		// Hide canvas
 		dialog.SetActive(false);
