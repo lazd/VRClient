@@ -155,7 +155,7 @@ public class WallWalker : MonoBehaviour {
 		// var transform.position = transform.position + GetComponent<CapsuleCollider>().center;
 
 		if (Physics.Raycast (transform.position, transform.forward, out hit, attractionDistance)) {
-			Debug.DrawRay (transform.position, transform.forward, Color.blue, attractionDistance);
+			// Debug.DrawRay (transform.position, transform.forward, Color.blue, attractionDistance);
 			
 			usedNormal = hit.normal;
 			curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
@@ -164,7 +164,7 @@ public class WallWalker : MonoBehaviour {
 		}
 		else { 
 			if (Physics.Raycast (transform.position, -transform.up, out hit, attractionDistance)) {
-	 			Debug.DrawRay (transform.position, -transform.up, Color.green, attractionDistance);
+	 			// Debug.DrawRay (transform.position, -transform.up, Color.green, attractionDistance);
 	 			usedNormal = hit.normal;
 	 			curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
 	 			tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
@@ -173,7 +173,7 @@ public class WallWalker : MonoBehaviour {
 			else {
 	      // Todo: why 0.3?
 				if (Physics.Raycast (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3f, 0), out hit, attractionDistance)) {
-					Debug.DrawRay (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3f, 0), Color.green, attractionDistance);
+					// Debug.DrawRay (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3f, 0), Color.green, attractionDistance);
 					usedNormal = hit.normal;
 					curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
 					tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
