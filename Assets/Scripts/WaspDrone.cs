@@ -151,10 +151,8 @@ public class WaspDrone : Wasp {
                 }
 
                 var throttleDirection = Quaternion.AngleAxis(throttleAngle, transform.right) * transform.up;
-                if (!Physics.Raycast(transform.position, throttleDirection, crashDistance)) {
-                    // Angle it forward, it feels nicer
-                    rb.AddForce(throttleDirection * throttleInput * throttleThrust, ForceMode.Impulse);
-                }
+                // Angle it forward, it feels nicer
+                rb.AddForce(throttleDirection * throttleInput * throttleThrust, ForceMode.Impulse);
             }
             
             if (throttleInput < 0) {
