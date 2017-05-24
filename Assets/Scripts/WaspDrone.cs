@@ -26,18 +26,20 @@ public class WaspDrone : Wasp {
     public float descentThrust = 0.01f;
     public float descentAngle = -10f;
 
+    public float maxSpeed = 120f;
+
     // Velocity vector for damping
     private Vector3 dampVelocity = Vector3.zero;
 
     private float initialDrag;
-    private float initialAttractionDistance;
+    // private float initialAttractionDistance;
     // private float maxAttractionDistance;
 
     protected override void Start() {
         base.Start();
 
         initialDrag = rb.drag;
-        initialAttractionDistance = attractionDistance;
+        // initialAttractionDistance = attractionDistance;
         // maxAttractionDistance = attractionDistance * 2;
 
         ApplyValues();  
@@ -84,7 +86,7 @@ public class WaspDrone : Wasp {
     }
 
     protected virtual void SetOutputs(){
-        rb.AddRelativeTorque(pControl.output * Time.fixedDeltaTime, ForceMode.Impulse);  
+        rb.AddRelativeTorque(pControl.output * Time.fixedDeltaTime, ForceMode.Impulse);
     }
 
     protected virtual void RCS() {
@@ -99,8 +101,10 @@ public class WaspDrone : Wasp {
 
         // Debug.Log("Current V : " + curVelocity + "\n" + "Target V :" + targetVelocity + "Current T : " + pControl.output);
     }
-
     protected override void FixedUpdate() {
+    }
+
+    protected  void Update() {
         // Run WallWalker calculations so we get isGroudned and inputs
         calculate();
 
@@ -141,8 +145,16 @@ public class WaspDrone : Wasp {
                 // No airbrakes
                 rb.drag = initialDrag;
 
-                // Angle it forward, it feels nicer
-                rb.AddForce(Quaternion.AngleAxis(throttleAngle, transform.right) * transform.up * throttleInput * throttleThrust, ForceMode.Impulse);
+                // Apply speed limit
+                if (rb.velocity.magnitude > maxSpeed){
+                    rb.velocity = Vector3.ClampMagnitude(rb.velocity, maxSpeed);
+                }
+
+                var throttleDirection = Quaternion.AngleAxis(throttleAngle, transform.right) * transform.up;
+                if (!Physics.Raycast(transform.position, throttleDirection, crashDistance)) {
+                    // Angle it forward, it feels nicer
+                    rb.AddForce(throttleDirection * throttleInput * throttleThrust, ForceMode.Impulse);
+                }
             }
             
             if (throttleInput < 0) {
@@ -155,9 +167,9 @@ public class WaspDrone : Wasp {
                 // Descend
                 rb.AddForce(Quaternion.AngleAxis(descentAngle, transform.right) * transform.up * throttleInput * descentThrust, ForceMode.Impulse);
             }
-            else {
-                attractionDistance = initialAttractionDistance;
-            }
+            // else {
+            //     attractionDistance = initialAttractionDistance;
+            // }
 
             // Run the PID flight controller
             RCS();
