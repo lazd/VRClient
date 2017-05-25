@@ -41,8 +41,12 @@ public class Ant : WallWalker {
     // Add forward momentum
     rb.velocity += forwardMotion * forwardJumpFactor * transform.forward;
 
+    gravity -= jumpSpeed/2;
+
     // Don't allow jumping for a bit
     yield return new WaitForSeconds(0.5f);
+
+    gravity += jumpSpeed/2;
 
     isJumping = false;
   }

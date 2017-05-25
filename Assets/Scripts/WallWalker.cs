@@ -74,6 +74,8 @@ public class WallWalker : MonoBehaviour {
 	private Vector3 usedNormal = Vector3.zero;
 	private Quaternion tiltToNormal;
 
+	private bool rayHit = false;
+
 	protected virtual void Start() {
 		anim = GetComponent<Animator>();
 		rb = GetComponent<Rigidbody>();
@@ -147,20 +149,21 @@ public class WallWalker : MonoBehaviour {
 		// var rayPosition = transform.position + new Vector3(0, groundedRayFudgeFactor, 0);
 		// isGrounded = Physics.Raycast(rayPosition, -transform.up, distGround + groundedRayFudgeFactor + 0.05f);
 
-		isGrounded = Physics.Raycast(transform.position, -transform.up, distGround + 0.05f);
+		isGrounded = Physics.Raycast(transform.position, -transform.up, distGround + 0.005f);
 	}
 
 	protected virtual void beSticky() {
 		// From previous attempt to be more true to the capsule
 		// var transform.position = transform.position + GetComponent<CapsuleCollider>().center;
 
+		rayHit = false;
 		if (Physics.Raycast (transform.position, transform.forward, out hit, attractionDistance)) {
 			// Debug.DrawRay (transform.position, transform.forward, Color.blue, attractionDistance);
-			
 			usedNormal = hit.normal;
 			curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
 			tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
 			transform.rotation = tiltToNormal;
+			rayHit = true;
 		}
 		else { 
 			if (Physics.Raycast (transform.position, -transform.up, out hit, attractionDistance)) {
@@ -169,20 +172,23 @@ public class WallWalker : MonoBehaviour {
 	 			curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
 	 			tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
 	 			transform.rotation = tiltToNormal;
+	 			rayHit = true;
 			}
 			else {
 	      // Todo: why 0.3?
-				if (Physics.Raycast (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3f, 0), out hit, attractionDistance)) {
-					// Debug.DrawRay (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3f, 0), Color.green, attractionDistance);
+				if (Physics.Raycast (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .03f, 0), out hit, attractionDistance)) {
+					// Debug.DrawRay (transform.position + (-transform.up), -transform.forward + new Vector3 (0, .3f, 0), Color.red, attractionDistance);
 					usedNormal = hit.normal;
 					curNormal = Vector3.Lerp (curNormal, usedNormal, stickyRotationLerpFactor * Time.deltaTime);
 					tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
 					transform.rotation = tiltToNormal;
+					rayHit = true;
 				}
 				else if (autoLevel) {
 					curNormal = Vector3.Lerp (curNormal, Vector3.up, stickyRotationLerpFactor * Time.deltaTime);
 					tiltToNormal = Quaternion.FromToRotation (transform.up, curNormal) * transform.rotation;
 					transform.rotation = tiltToNormal;
+					rayHit = true;
 				}
 			}
 		}
@@ -232,7 +238,7 @@ public class WallWalker : MonoBehaviour {
 		// Apply constant force according to character normal
 		// This keeps the walker stuck to the wall and acts as gravity
 		// If this is applied unconditionally, gravity must be off on the RigidBody
-		if (gravity != 0) {
+		if (gravity != 0 && (isGrounded || rayHit)) {
 			// Don't bother with function calls if gravity is off
 			rb.AddForce(gravity * rb.mass * -transform.up);
 		}

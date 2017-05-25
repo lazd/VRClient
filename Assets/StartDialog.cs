@@ -51,8 +51,8 @@ public class StartDialog : MonoBehaviour {
 		followCamera.target = activeCharacter;
 		activeCharacter.SetActive (true);
 
-    activeCharacter.transform.position = new Vector3(84.81f, 0.05f, -74.2f);
-    activeCharacter.transform.rotation = Quaternion.Euler(0, -36f, 0);
+    // activeCharacter.transform.position = new Vector3(84.81f, 0.05f, -74.2f);
+    // activeCharacter.transform.rotation = Quaternion.Euler(0, -36f, 0);
 
 		// Hide canvas
 		dialog.SetActive(false);

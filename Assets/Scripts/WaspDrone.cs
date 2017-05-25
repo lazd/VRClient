@@ -102,9 +102,6 @@ public class WaspDrone : Wasp {
         // Debug.Log("Current V : " + curVelocity + "\n" + "Target V :" + targetVelocity + "Current T : " + pControl.output);
     }
     protected override void FixedUpdate() {
-    }
-
-    protected  void Update() {
         // Run WallWalker calculations so we get isGroudned and inputs
         calculate();
 
@@ -112,8 +109,8 @@ public class WaspDrone : Wasp {
         beSticky();
 
         if (isGrounded) {
-            followCamera.cameraAngle = Mathf.Lerp(followCamera.cameraAngle, 10f, Time.deltaTime * 0.5f);
-            followCamera.offset = Vector3.SmoothDamp(followCamera.offset, new Vector3(0, -2f, 7f), ref dampVelocity, 0.5f);
+            // followCamera.cameraAngle = Mathf.Lerp(followCamera.cameraAngle, 10f, Time.deltaTime * 0.5f);
+            // followCamera.offset = Vector3.SmoothDamp(followCamera.offset, new Vector3(0, -0.2f, 0.7f), ref dampVelocity, 0.5f);
             followCamera.rotationSpeed = 2f;
             followCamera.positionDamping = 0.25f;
 
@@ -128,7 +125,7 @@ public class WaspDrone : Wasp {
         else {
             // Follow from underneath
             followCamera.cameraAngle = Mathf.Lerp(followCamera.cameraAngle, 20f, Time.deltaTime * 0.5f);
-            followCamera.offset = Vector3.SmoothDamp(followCamera.offset, new Vector3(0, 0, 6f), ref dampVelocity, 0.5f);
+            followCamera.offset = Vector3.SmoothDamp(followCamera.offset, new Vector3(0, 0, 0.6f), ref dampVelocity, 0.5f);
             followCamera.rotationSpeed = 8f;
             followCamera.positionDamping = 0.001f;
 
