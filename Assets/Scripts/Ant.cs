@@ -11,7 +11,20 @@ public class Ant : WallWalker {
   /** API */
   public bool isJumping = false;
 
+  protected override void Start() {
+    base.Start();
+
+    if (isLocalPlayer) {
+      Camera.main.GetComponent<FollowCamera>().target= this.gameObject;
+    }
+  }
+
   protected override void FixedUpdate() {
+    if (!isLocalPlayer)
+    {
+        return;
+    }
+
     // Run WallWalker calculations so we get isGroudned and inputs
     base.calculate();
 

@@ -4,8 +4,9 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using UnityStandardAssets.CrossPlatformInput;
+using UnityEngine.Networking;
 
-public class WallWalker : MonoBehaviour {
+public class WallWalker : NetworkBehaviour {
 
 	/** Configuration */
 	public float moveSpeed = 8f; // move speed

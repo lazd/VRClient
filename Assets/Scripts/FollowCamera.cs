@@ -54,6 +54,8 @@ public class FollowCamera : MonoBehaviour {
   // https://forum.unity3d.com/threads/camera-jitter-problem.115224/#post-1854046
 
   void FixedUpdate() {
+    // @Todo: Unhook from target when target destroyed
+
     // Calculate the desired new position 
     var desiredNewPosition = Vector3.SmoothDamp(transform.position, target.transform.position - (target.transform.rotation * offset), ref dampVelocity, positionDamping);
 
