@@ -22,10 +22,11 @@ public class Ant : WallWalker {
   protected override void FixedUpdate() {
     if (!isLocalPlayer)
     {
-        return;
+      // Don't run client-side code
+      return;
     }
 
-    // Run WallWalker calculations so we get isGroudned and inputs
+    // Run WallWalker calculations so we get isGrounded and inputs
     base.calculate();
 
     // Be sticky no matter what

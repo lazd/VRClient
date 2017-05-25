@@ -145,7 +145,7 @@ public class WallWalker : NetworkBehaviour {
 			strafeInput = Mathf.Sign(CrossPlatformInputManager.GetAxis(strafeStick)) * Mathf.Pow(Mathf.Abs(CrossPlatformInputManager.GetAxis(strafeStick)), moveExpo);
 		} 
 
-		// Cast ray downwards to detect if we"re on the ground
+		// Cast ray downwards to detect if we're on the ground
 		// var groundedRayFudgeFactor = GetComponent<Collider>().bounds.extents.y/2;
 		// var rayPosition = transform.position + new Vector3(0, groundedRayFudgeFactor, 0);
 		// isGrounded = Physics.Raycast(rayPosition, -transform.up, distGround + groundedRayFudgeFactor + 0.05f);
