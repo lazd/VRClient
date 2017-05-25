@@ -26,7 +26,9 @@ public class WaspDrone : Wasp {
     public float descentThrust = 0.01f;
     public float descentAngle = -10f;
 
-    public float maxSpeed = 120f;
+    public float maxSpeed = 13f;
+    public float decellTime = 1f;
+    public float maxDescentSpeed = 3f;
 
     // Velocity vector for damping
     private Vector3 dampVelocity = Vector3.zero;
@@ -42,7 +44,13 @@ public class WaspDrone : Wasp {
         // initialAttractionDistance = attractionDistance;
         // maxAttractionDistance = attractionDistance * 2;
 
-        ApplyValues();  
+        ApplyValues();
+
+        // Follow from underneathish
+        followCamera.cameraAngle = 20f;
+        followCamera.offset = new Vector3(0, 0, 0.6f);
+        followCamera.rotationSpeed = 8f;
+        followCamera.positionDamping = 0.001f;
     }
 
     protected virtual void ApplyValues(){
@@ -109,10 +117,11 @@ public class WaspDrone : Wasp {
         beSticky();
 
         if (isGrounded) {
+            // Very much not smooth
             // followCamera.cameraAngle = Mathf.Lerp(followCamera.cameraAngle, 10f, Time.deltaTime * 0.5f);
             // followCamera.offset = Vector3.SmoothDamp(followCamera.offset, new Vector3(0, -0.2f, 0.7f), ref dampVelocity, 0.5f);
-            followCamera.rotationSpeed = 2f;
-            followCamera.positionDamping = 0.25f;
+            // followCamera.rotationSpeed = 2f;
+            // followCamera.positionDamping = 0.25f;
 
             // Otherwise, be a wallwalker
 
@@ -123,12 +132,6 @@ public class WaspDrone : Wasp {
             wallWalk();
         }
         else {
-            // Follow from underneath
-            followCamera.cameraAngle = Mathf.Lerp(followCamera.cameraAngle, 20f, Time.deltaTime * 0.5f);
-            followCamera.offset = Vector3.SmoothDamp(followCamera.offset, new Vector3(0, 0, 0.6f), ref dampVelocity, 0.5f);
-            followCamera.rotationSpeed = 8f;
-            followCamera.positionDamping = 0.001f;
-
             // Enable physics rotation
             rb.freezeRotation = false;
             rb.useGravity = true;
@@ -142,14 +145,14 @@ public class WaspDrone : Wasp {
                 // No airbrakes
                 rb.drag = initialDrag;
 
+                var throttleDirection = Quaternion.AngleAxis(throttleAngle, transform.right) * transform.up;
+                // Angle it forward, it feels nicer
+                rb.AddForce(throttleDirection * throttleInput * throttleThrust, ForceMode.Impulse);
+
                 // Apply speed limit
                 if (rb.velocity.magnitude > maxSpeed){
                     rb.velocity = Vector3.ClampMagnitude(rb.velocity, maxSpeed);
                 }
-
-                var throttleDirection = Quaternion.AngleAxis(throttleAngle, transform.right) * transform.up;
-                // Angle it forward, it feels nicer
-                rb.AddForce(throttleDirection * throttleInput * throttleThrust, ForceMode.Impulse);
             }
             
             if (throttleInput < 0) {
@@ -161,6 +164,11 @@ public class WaspDrone : Wasp {
 
                 // Descend
                 rb.AddForce(Quaternion.AngleAxis(descentAngle, transform.right) * transform.up * throttleInput * descentThrust, ForceMode.Impulse);
+
+                // Apply speed limit
+                if (rb.velocity.magnitude > maxDescentSpeed){
+                    rb.velocity = Vector3.SmoothDamp(rb.velocity, Vector3.ClampMagnitude(rb.velocity, maxDescentSpeed), ref dampVelocity, decellTime);
+                }
             }
             // else {
             //     attractionDistance = initialAttractionDistance;
